@@ -1,33 +1,38 @@
-import { Request, Response } from "express";
-import express from "express"
-import authRoutes from "./routes/authRouter"
+import express, { Request, Response } from "express";
+import authRoutes from "./routes/authRouter";
 import connectDb from "./db/db";
-import dotenv, { config } from "dotenv"
+import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
-import cors from "cors"
-// connect db call 
-dotenv.config()
+import cors from "cors";
 
-connectDb()
-const app = express()
+// Load environment variables
+dotenv.config();
 
+// Connect to database
+connectDb();
 
-//midlwware
-app.use(express.json())
-app.use("/api/",authRoutes)
-app.use(cookieParser())
-// app.use(cors(
-//     Credential:true,
-//     origin:""
-// ))
+const app = express();
 
+// Middleware (Order Matters!)
+app.use(express.json());
+app.use(express.urlencoded({ extended: true })); // ✅ Parse URL-encoded data
 
-app.get("/" , (rq:Request,rs:Response) =>{
-    rs.send("hare krishna")
-    
-})
-const port = process.env.PORT
-app.listen(port , ()=>{
-    console.log("server run successful");
-    
-})
+app.use(cookieParser()); // 🔥 Ensure this is before routes
+app.use(
+    cors({
+        credentials: true, // ✅ Correct key name
+        origin: "http://localhost:3000", // 🔥 Change this to your frontend URL
+    })
+);
+
+// Routes
+app.use("/api", authRoutes);
+
+app.get("/", (rq: Request, rs: Response) => {
+    rs.send("Hare Krishna");
+});
+
+const port = process.env.PORT || 5000; // Set default port if missing
+app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
+});

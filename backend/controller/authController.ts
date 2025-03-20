@@ -31,12 +31,9 @@ export const registerController = async (rq:Request,rs:Response) =>{
              rs.status(400).json({ success: false, message: "Phone is required" });
              return
           }
-        const existUser = await authModel.findOne({phone})
-        if (existUser) {
-            rs.status(400).json({
-                success:false,
-                message:"user already registered with this number"
-            })
+        let existUser = await authModel.findOne({phone})
+        if (!existUser) {
+           existUser= await new authModel({username,phone}).save()
             return
             
         }else if (phone.length !== 10) {
@@ -49,10 +46,10 @@ export const registerController = async (rq:Request,rs:Response) =>{
  
         
         
-        const user = await new authModel({username,phone}).save()
+      
         
         // user token 
-        const token = jwt.sign({id : user._id},process.env.JWT_KEY as string ,{expiresIn:"7d"})
+        const token = jwt.sign({id : existUser._id},process.env.JWT_KEY as string ,{expiresIn:"7d"})
 
         // cookie 
             rs.cookie("user_token",token ,{
@@ -65,7 +62,7 @@ export const registerController = async (rq:Request,rs:Response) =>{
          rs.status(201).json({
             success:true,
             message:"register success",
-            user,
+            existUser,
             token
     
         })

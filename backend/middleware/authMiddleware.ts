@@ -4,14 +4,14 @@ import jwt from "jsonwebtoken"
 
 
 interface AuthReq extends Request {
-    user: string
+    user?: string;
 }
 
 
 export const userMiddleware = async (rq:AuthReq,rs:Response,next:NextFunction) =>{
     try {
         // token 
-        const token = rq.cookies.user_token;
+        const token = rq.cookies.user_token as string;
         if (!token) {
             rs.status(400).json({
                 success:false,
@@ -30,7 +30,7 @@ export const userMiddleware = async (rq:AuthReq,rs:Response,next:NextFunction) =
             return
         }
 
-        rq.user = decode.id as string
+        rq.user = decode.id
 
         next()
     } catch (error) {
