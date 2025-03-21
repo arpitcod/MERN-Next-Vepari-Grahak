@@ -4,7 +4,7 @@ import connectDb from "./db/db";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import cors from "cors";
-
+import shopRoutes from "./routes/createShop"
 // Load environment variables
 dotenv.config();
 
@@ -16,7 +16,6 @@ const app = express();
 // Middleware (Order Matters!)
 app.use(express.json());
 app.use(express.urlencoded({ extended: true })); // ✅ Parse URL-encoded data
-
 app.use(cookieParser()); // 🔥 Ensure this is before routes
 app.use(
     cors({
@@ -27,7 +26,7 @@ app.use(
 
 // Routes
 app.use("/api", authRoutes);
-
+app.use("/api",shopRoutes)
 app.get("/", (rq: Request, rs: Response) => {
     rs.send("Hare Krishna");
 });

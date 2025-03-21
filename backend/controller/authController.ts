@@ -59,7 +59,7 @@ export const registerController = async (rq:Request,rs:Response) =>{
         
             })
 
-         rs.status(201).json({
+        await rs.status(201).json({
             success:true,
             message:"register success",
             existUser,
@@ -120,6 +120,146 @@ export const logoutController= async (rq:Request,rs:Response) =>{
             error
         })
 
+        
+    }
+}
+
+
+// getAllUsersController 
+
+export const getAllUsersController = async (rq:Request,rs:Response) =>{
+    try {
+        
+        const getAllUsers = await authModel.find({})
+
+        if (!getAllUsers) {
+            rs.status(404).json({
+                success:false,
+                message:"users not found"
+            })
+        }
+
+
+        rs.status(200).json({
+            success:true,
+            message:"all users fetched",
+            total_users:getAllUsers.length,
+            getAllUsers
+        })
+    } catch (error) {
+        console.log(error);
+        rs.status(500).json({
+            success:false,
+            message:"something went wrong",
+            error
+        })
+    }
+}
+
+// getSingleUserController 
+
+export const getSingleUserController = async (rq:Request,rs:Response) =>{
+    try {
+        const {id} = rq.params;
+        const getSingleUser = await authModel.findById(id)
+
+        if (!getSingleUser) {
+            rs.status(404).json({
+                success:false,
+                message:"user not found",
+
+            })
+        }
+
+        rs.status(200).json({
+            success:true,
+            message:"user fecthed",
+            getSingleUser
+        })
+    } catch (error) {
+        console.log(error);
+        rs.status(500).json({
+            success:false,
+            message:"something went wrong",
+            error
+        })
+        
+    }
+}
+
+
+
+
+// updateUserController 
+
+export const updateUserController = async (rq:Request,rs:Response) =>{
+    try {
+        const {id} = rq.params;
+        const {username} = rq.body
+
+
+         if (!username) {
+            rs.status(400).json({
+                success:false,
+                message:"username required"
+            })
+         }
+
+         const updateUser = await authModel.findByIdAndUpdate(id,{username},{new:true})
+
+         if (!updateUser) {
+            rs.status(400).json({
+                success:false,
+                message:"user not found"
+            })
+            return
+         }
+         rs.status(200).json({
+            success:true,
+            message:"user update success",
+            updateUser
+         })
+
+    } catch (error) {
+        console.log(error);
+        rs.status(500).json({
+            success:false,
+            message:"something went wrong",
+            error
+        })
+        
+    }
+}
+
+
+
+// deleteUserController
+
+export const deleteUserController = async (rq:Request,rs:Response) =>{
+    try {
+        const {id} = rq.params;
+
+        const deleteUser = await authModel.findByIdAndDelete(id);
+
+        if (!deleteUser) {
+            rs.status(401).json({
+                success:false,
+                message:"user not found"
+            })
+
+        }
+
+        rs.status(200).json({
+            success:true,
+            message:"user delete success",
+            deleteUser
+        })
+    } catch (error) {
+        console.log(error);
+        rs.status(500).json({
+            success:false,
+            message:"something went wrong"
+        })
         
     }
 }
