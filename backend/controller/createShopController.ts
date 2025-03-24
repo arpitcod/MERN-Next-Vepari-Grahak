@@ -57,3 +57,47 @@ export const createShopController = async (rq: AuthRequest, rs: Response): Promi
      return
   }
 };
+
+
+
+// deleteShopController
+
+export const deleteShopController = async (rq:Request,rs:Response) =>{
+  try {
+
+    const {id} = rq.params;
+
+    if (!id) {
+      rs.status(401).json({
+        success:false,
+        message:"shop id not match"
+      })
+    }
+
+    const vepari_shop = await createShopModel.findById(id)
+    if (!vepari_shop) {
+      rs.status(400).json({
+        success:false,
+        message:"vepari shop not found"
+      })
+    }
+
+    await createShopModel.findByIdAndDelete(id)
+
+
+    rs.status(200).json({
+      success:true,
+      message:"shop deleted success",
+      vepari_shop
+    })
+    
+  } catch (error) {
+    console.log(error);
+    rs.status(500).json({
+      success:false,
+      message:"something went wrong server error",
+      error
+    })
+    
+  }
+}
