@@ -53,7 +53,7 @@ const layout = ({children}) => {
          </div>
 
       </div>
-      <div className="border h-[500px] w-[500px]">
+      <div className="border h-[500px] w-[800px]">
 
             {children}
       </div>
