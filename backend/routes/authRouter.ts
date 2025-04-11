@@ -1,4 +1,4 @@
-import { deleteUserController, getAllUsersController, getSingleUserController, logoutController, registerController, updateUserController } from "../controller/authController"
+import { deleteUserController, getAllUsersController, getSingleUserController, getUserProfile, logoutController, registerController, updateUserController } from "../controller/authController"
 
 import express, { Request, Response } from "express"
 import { userMiddleware } from "../middleware/authMiddleware"
@@ -21,18 +21,19 @@ router.put('/update-user/:id',updateUserController)
 //delete user http://localhost:2914/api/delete-user/67dc608f9dc51f884e86f637
 router.delete("/delete-user/:id",deleteUserController)
 
-//logout 
+//logout http://localhost:2914/api/logout
 router.get("/logout",logoutController)
 
 
-//get user with token
-router.get("/get_user",userMiddleware,(rq:Request,rs:Response) =>{
-    rs.json({
-        success:true,
-        message:"user get success",
-        userId:(rq as any).user
-    })
-})
+//get user with token http://localhost:2929/api/get_user
+router.get("/get_user", userMiddleware, getUserProfile);
+// router.get("/get_user",userMiddleware,(rq:Request,rs:Response) =>{
+//     rs.json({
+//         success:true,
+//         message:"user get success",
+//         userId:(rq as any).user
+//     })
+// })
 
 
 export default router

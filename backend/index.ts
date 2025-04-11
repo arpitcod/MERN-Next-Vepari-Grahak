@@ -15,12 +15,12 @@ const app = express();
 
 // Middleware (Order Matters!)
 app.use(express.json());
-app.use(express.urlencoded({ extended: true })); // ✅ Parse URL-encoded data
+// app.use(express.urlencoded({ extended: true })); // ✅ Parse URL-encoded data
 app.use(cookieParser()); // 🔥 Ensure this is before routes
 app.use(
     cors({
-        credentials: true, // ✅ Correct key name
         origin: "http://localhost:3000", // 🔥 Change this to your frontend URL
+        credentials: true, // ✅ Correct key name
     })
 );
 

@@ -12,6 +12,9 @@ interface RegisterType {
     username:string,
     phone:string
 }
+// interface AuthReq extends Request {
+//     user?: any; // Extend Request type to include user
+//   }
 
 
 // register controller 
@@ -52,12 +55,12 @@ export const registerController = async (rq:Request,rs:Response) =>{
         const token = jwt.sign({id : existUser._id},process.env.JWT_KEY as string ,{expiresIn:"7d"})
 
         // cookie 
-            rs.cookie("user_token",token ,{
-                httpOnly:true,
-                sameSite:"strict",
-                maxAge:7 * 24 * 60 * 60 * 1000,
-        
-            })
+        rs.cookie("user_token", token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+        });
 
         await rs.status(201).json({
             success:true,
@@ -263,3 +266,34 @@ export const deleteUserController = async (rq:Request,rs:Response) =>{
         
     }
 }
+
+
+  
+//   export const getUserProfile = async (rq: AuthReq, rs: Response) => {
+  export const getUserProfile = async (rq: Request, rs: Response) => {
+    try {
+
+        const user = await (rq as any).user 
+      if (!user) {
+         rs.status(401).json({
+          success: false,
+          message: "User not found",
+        });
+        return
+      }
+  
+       rs.json({
+        success: true,
+        message: "User profile fetched successfully",
+        // user: rq.user, // ✅ Correctly accessing the user property
+        user
+      });
+    } catch (error) {
+      console.log(error);
+       rs.status(500).json({
+        success: false,
+        message: "Something went wrong",
+      });
+      return
+    }
+  };

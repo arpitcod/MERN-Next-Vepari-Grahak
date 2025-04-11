@@ -28,6 +28,39 @@ const createShopSchema = new mongoose.Schema({
     isAdmin:{
         type:Boolean,
         default:true
+    },
+    address:{
+        country:{
+            type:String,
+            default:"india",
+            required:true
+
+        },
+        state:{
+            type:String,
+            required:true
+
+        },
+        city:{
+            type:String,
+            required:true
+        }
+    },
+    isActive:{
+        type:Boolean,
+        default:true
+    },
+    category:{
+        type:String,
+        required:true
+    },
+    contact:{
+        type:Number,
+        unique:true,
+       
+    },
+    shopTime:{
+        type:String
     }
 
 },{timestamps:true})
