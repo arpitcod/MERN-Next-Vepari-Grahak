@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import shopRoutes from "./routes/createShop"
+import faqRoutes from "./routes/faqRouter"
 // Load environment variables
 dotenv.config();
 
@@ -27,6 +28,7 @@ app.use(
 // Routes
 app.use("/api", authRoutes);
 app.use("/api",shopRoutes)
+app.use("/api",faqRoutes)
 app.get("/", (rq: Request, rs: Response) => {
     rs.send("Hare Krishna");
 });

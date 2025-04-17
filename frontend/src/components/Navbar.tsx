@@ -133,8 +133,8 @@ const Navbar = () => {
   // console.log("from user geet data",userdata);
   
   return (
-    <div className="border mx-2 flex justify-between items-center py-1 ">
-      <div className="border">
+    <div className="border px-2 flex justify-between items-center py-1 ">
+      <div className="">
         <p className="text-2xl ">Vepari Grahak</p>
       </div>
 

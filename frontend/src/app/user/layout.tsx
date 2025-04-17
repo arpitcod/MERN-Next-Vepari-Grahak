@@ -28,10 +28,7 @@ const layout = ({children}) => {
           name:"Create Shop",
           link:"/user/create-shop"
         },
-        {
-          name:"Logout",
-          link:"/"
-        }
+
         
       ]
   return (

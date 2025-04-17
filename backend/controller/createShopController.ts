@@ -7,7 +7,7 @@ interface AuthRequest extends Request {
 
 export const createShopController = async (rq: AuthRequest, rs: Response): Promise<void> => {
   try {
-    const { shopname, description, profile, banner } = rq.body;
+    const { shopname, description, profile, banner,address,category,contact,shopTime } = rq.body;
     const userId = rq.user;
 
     if (!userId) {
@@ -20,10 +20,31 @@ export const createShopController = async (rq: AuthRequest, rs: Response): Promi
 
     console.log("User ID:", userId);
 
-    if (!shopname || !description) {
+    if (!shopname) {
        rs.status(400).json({ success: false, message: "Shopname and description required" });
        return
+      }
+      if (!description) {
+        rs.status(400).json({ success: false, message: "Shopname and description required" });
+        return
+        
     }
+      if (!address) {
+        rs.status(400).json({ success: false, message: "Shopname and address required" });
+        return
+        
+    }
+      if (!category) {
+        rs.status(400).json({ success: false, message: "Shopname and category required" });
+        return
+        
+    }
+      if (!shopTime) {
+        rs.status(400).json({ success: false, message: "Shopname and shoptime required" });
+        return
+        
+    }
+      
 
     // Check if shop already exists
     const existingShop = await createShopModel.findOne({ user: userId });
@@ -43,6 +64,10 @@ export const createShopController = async (rq: AuthRequest, rs: Response): Promi
       profile: shopProfile,
       banner,
       isAdmin: true,
+      address,
+      category,
+      contact,
+      shopTime
     }).save();
 
      rs.status(201).json({
