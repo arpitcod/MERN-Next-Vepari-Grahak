@@ -32,10 +32,10 @@ const layout = ({children}) => {
         
       ]
   return (
-    <div className="border border-red-500 mt-5 ">
+    <div className=" mt-5 ">
 
-    <div className="flex justify-center gap-3 border py-2">
-      <div className="border h-[500px] w-[200px] px-2">
+    <div className="flex justify-center gap-2 border py-2 bg-gray-100">
+      <div className="border h-[500px] w-[200px] px-2 rounded-lg shadow-sm bg-white">
          <h1 className="text-center text-xl font-medium mt-3"> {user?.user?.username}</h1>
          <div>
               {
@@ -50,7 +50,7 @@ const layout = ({children}) => {
          </div>
 
       </div>
-      <div className="border h-[500px] w-[800px]">
+      <div className="border h-[500px] w-[800px] rounded-lg p-1 bg-white">
 
             {children}
       </div>

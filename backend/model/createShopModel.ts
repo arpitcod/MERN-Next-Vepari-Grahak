@@ -23,11 +23,12 @@ const createShopSchema = new mongoose.Schema({
 
     },
     banner:{
-        type:String
+        type:String,
+        default:""
     },
     isAdmin:{
         type:Boolean,
-        default:true
+        default:false
     },
     address:{
         country:{

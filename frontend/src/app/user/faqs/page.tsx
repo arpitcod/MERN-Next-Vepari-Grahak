@@ -56,8 +56,8 @@ const Faqs = () => {
           value={faq}
         ></textarea>
       </div>
-      <div>
-        <button className="bg-blue-600 px-6 py-2  rounded-lg text-blue-50 hover:bg-blue-700" onClick={handleFaqSubmit}>
+      <div className="">
+        <button className="bg-gray-800  py-2 px-5 rounded-lg text-gray-50 hover:bg-gray-700 " onClick={handleFaqSubmit}>
           Submit
         </button>
       </div>
