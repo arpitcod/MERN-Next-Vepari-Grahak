@@ -16,7 +16,7 @@ const Navbar = () => {
   const [showAccount, setShowAccount] = useState(false);
   const [userToken, setUserToken] = useState<string | null>(null);
   const [showLogin, setShowLogin] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
+  // const [darkMode, setDarkMode] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   // dispatch
   const disPatch = useDispatch();
@@ -77,29 +77,29 @@ const Navbar = () => {
     }
   };
 
-  useEffect(() => {
-    const storedTheme = localStorage.getItem("theme");
+  // useEffect(() => {
+  //   const storedTheme = localStorage.getItem("theme");
 
-    if (storedTheme === "dark") {
-      document.documentElement.classList.add("dark");
-      setDarkMode(true);
-    } else {
-      document.documentElement.classList.remove("dark");
-      setDarkMode(false);
-    }
-  }, []);
+  //   if (storedTheme === "dark") {
+  //     document.documentElement.classList.add("dark");
+  //     setDarkMode(true);
+  //   } else {
+  //     document.documentElement.classList.remove("dark");
+  //     setDarkMode(false);
+  //   }
+  // }, []);
 
-  const handleDarkMode = () => {
-    if (darkMode) {
-      document.documentElement.classList.remove("dark");
-      localStorage.setItem("theme", "light");
-      setDarkMode(false);
-    } else {
-      document.documentElement.classList.add("dark");
-      localStorage.setItem("theme", "dark");
-      setDarkMode(true);
-    }
-  };
+  // const handleDarkMode = () => {
+  //   if (darkMode) {
+  //     document.documentElement.classList.remove("dark");
+  //     localStorage.setItem("theme", "light");
+  //     setDarkMode(false);
+  //   } else {
+  //     document.documentElement.classList.add("dark");
+  //     localStorage.setItem("theme", "dark");
+  //     setDarkMode(true);
+  //   }
+  // };
   // toast.success("hare krishna")
 
   // handleLogout
@@ -138,7 +138,7 @@ const Navbar = () => {
         <p className="text-2xl cursor-pointer text-amber-950 font-z">Vepari Grahak</p>
       </div>
 
-      <div className="border rounded-sm flex items-center">
+      <div className="border rounded-md flex items-center">
         <FaSearch className="mx-2 text-lg" />
         <input
           type="text"
@@ -168,33 +168,33 @@ const Navbar = () => {
             <MdAccountCircle /> My Account
           </button>
           {showAccount && (
-            <div className="border w-full absolute top-15 bg-white dark:bg-gray-800 rounded-sm p-1">
+            <div className="border w-full absolute top-15 bg-white text-gray-800 rounded-sm p-1 shadow-xl">
               <Link
                 href="/user/user-profile"
-                className="border block my-1 text-center py-1"
+                className="border block my-1 text-center py-1 rounded-sm hover:bg-gray-800 hover:text-gray-50 transition-all"
               >
                 Profile
               </Link>
-              <Link href="/user/my-orders" className="border block my-1 text-center py-1">
+              <Link href="/user/my-orders" className="border block my-1 text-center py-1 rounded-sm hover:bg-gray-800 hover:text-gray-50 transition-all">
                 My Orders
               </Link>
-              <button
+              {/* <button
                 className="border text-center py-1 w-full cursor-pointer"
                 onClick={handleDarkMode}
               >
                 {darkMode ? "Light Mode" : "Dark Mode"}
-              </button>
-              <Link href="/user/likes" className="border block my-1 text-center py-1">
+              </button> */}
+              <Link href="/user/likes" className="border block my-1 text-center py-1 rounded-sm hover:bg-gray-800 hover:text-gray-50 transition-all">
                 Likes
               </Link>
-              <Link href="/user/faqs" className="border block my-1 text-center py-1">
+              <Link href="/user/faqs" className="border block my-1 text-center py-1 rounded-sm hover:bg-gray-800 hover:text-gray-50 transition-all">
                 Faqs
               </Link>
-              <Link href="/user/create-shop" className="border block my-1 text-center py-1">
+              <Link href="/user/create-shop" className="border block my-1 text-center py-1 rounded-sm hover:bg-gray-800 hover:text-gray-50 transition-all">
                 Create Shop
               </Link>
               <button
-                className="border block my-1 text-center py-1 bg-red-500 text-white rounded-md w-full cursor-pointer"
+                className="border block my-1 text-center py-1 bg-red-500 text-white rounded-md w-full cursor-pointer hover:bg-red-700"
                 onClick={handleLogout}
               >
                 Logout

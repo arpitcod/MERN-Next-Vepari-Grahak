@@ -60,9 +60,16 @@ const createShopSchema = new mongoose.Schema({
         unique:true,
        
     },
-    shopTime:{
-        type:String
-    }
+    shopTime: {
+        startTime: {
+          type: String, // you can use Date if you want specific time objects
+          required: true,
+        },
+        endTime: {
+          type: String,
+          required: true,
+        },
+      },
 
 },{timestamps:true})
 

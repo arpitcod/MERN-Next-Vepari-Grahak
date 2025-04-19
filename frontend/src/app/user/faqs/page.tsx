@@ -51,16 +51,16 @@ const Faqs = () => {
           placeholder="write faq..."
           cols={70}
           rows={15}
-          className="border rounded-md resize-none p-2 "
+          className="border rounded-md resize-none p-2 shadow-md"
           onChange={(e) => setFaq(e.target.value)}
           value={faq}
         ></textarea>
       </div>
-      <div className="">
-        <button className="bg-gray-800  py-2 px-5 rounded-lg text-gray-50 hover:bg-gray-700 " onClick={handleFaqSubmit}>
+      {/* <div className="border w-full text-center"> */}
+        <button className="bg-gray-800  py-2 px-10 rounded-lg text-gray-50 hover:bg-gray-700 " onClick={handleFaqSubmit}>
           Submit
         </button>
-      </div>
+      {/* </div> */}
     </div>
   );
 };
