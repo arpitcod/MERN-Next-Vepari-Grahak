@@ -3,9 +3,11 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import React from 'react'
 import { useSelector } from 'react-redux'
+import { RootState } from '../../../redux/store'
 
 const layout = ({children}) => {
     const user = useSelector((state: any) => state.user.user);
+    const getVepariData = useSelector((state:RootState) => state?.getVepari?.getVepari);
     const pathName = usePathname()
     const accountList =[
         {
@@ -24,10 +26,20 @@ const layout = ({children}) => {
           name:"Faqs",
           link:"/user/faqs"
         },
-        {
-          name:"Create Shop",
-          link:"/user/create-shop"
-        },
+
+        getVepariData ? (
+          {
+            name:"Create Shop",
+            link:"/user/create-shop"
+          }
+          
+        ) : (
+          
+          {
+            name:"Vepari Studio",
+            link:"/admin-vepari/profile"
+          }
+        )
 
         
       ]
@@ -41,6 +53,7 @@ const layout = ({children}) => {
               {
                   accountList.map((item,index) =>{
                     const isActive = pathName === item.link
+
                   return (
                     <Link href={item.link} className={`block border shadow-sm rounded-lg text-center py-2 transition-colors my-2 hover:bg-gray-800 hover:text-gray-100 transition-colors ${isActive ? "bg-gray-800 text-gray-100" : ""}`} key={index}>{item.name}</Link>
                   )

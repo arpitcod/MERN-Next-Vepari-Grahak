@@ -3,6 +3,10 @@ import mongoose from "mongoose";
 
 const createShopSchema = new mongoose.Schema({
 
+    vepariname:{
+        type:String,
+        required:true
+    },
     shopname:{
         type:String,
         required:true,

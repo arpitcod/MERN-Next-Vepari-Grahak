@@ -4,15 +4,25 @@ import React, { useEffect, useState } from "react";
 import { FaSearch, FaShoppingCart } from "react-icons/fa";
 import { IoMdClose } from "react-icons/io";
 import { MdAccountCircle } from "react-icons/md";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { setUserData } from "../../redux/UserSlice";
 // import useGetUser from "@/getData/useGetUser";
 // import UserGetData from "@/getData/UserGetData";
 import { useRouter } from "next/navigation";
-
+import { RootState } from "../../redux/store";
+import useGetUser from "@/getData/useGetUser";
+import useGetVepariData from "@/getData/useGetVepariData";
 
 const Navbar = () => {
+
+
+  useGetUser()
+   useGetVepariData()
+  // console.log("from navbar",getVepari);
+  
+  // console.log("from navbar",getUser);
+  
   const [showAccount, setShowAccount] = useState(false);
   const [userToken, setUserToken] = useState<string | null>(null);
   const [showLogin, setShowLogin] = useState(false);
@@ -22,21 +32,26 @@ const Navbar = () => {
   const disPatch = useDispatch();
   //router
   const router = useRouter();
+
+  //get vepari data
+  const getVepariData = useSelector(
+    (state: RootState) => state?.getVepari?.getVepari
+  );
+  console.log("from navbar",getVepariData);
   
   //login signup
   const [user, setUser] = useState({
     username: "",
     phone: "",
   });
-  
+
   // useGetUser()
   useEffect(() => {
-    const token = localStorage.getItem("vg_token") ;
-    if (token ) {
-      setUserToken(token)
+    const token = localStorage.getItem("vg_token");
+    if (token) {
+      setUserToken(token);
     }
     // console.log(process.env.SERVER_LOCALHOST);
-    
   }, []);
   // handle login sign up
 
@@ -64,7 +79,7 @@ const Navbar = () => {
       setUserToken(responseData?.token);
       // disPatch(setUserData(responseData));
 
-      router.push('/')
+      router.push("/");
       setUser({
         username: "",
         phone: "",
@@ -117,7 +132,7 @@ const Navbar = () => {
         setIsLoading(true);
         localStorage.removeItem("vg_token");
         setUserToken(null);
-        router.push("/")
+        router.push("/");
         disPatch(setUserData(null));
         toast.success(responseData.message);
       }
@@ -131,11 +146,13 @@ const Navbar = () => {
 
   // const userdata = UserGetData()
   // console.log("from user geet data",userdata);
-  
+
   return (
-    <div className=" px-2 flex justify-between items-center py-2 bg-white shadow-sm">
+    <div className=" px-2 flex justify-between items-center py-2 bg-white shadow-md">
       <div className="">
-        <p className="text-2xl cursor-pointer text-amber-950 font-z">Vepari Grahak</p>
+        <p className="text-2xl cursor-pointer text-amber-950 font-z">
+          Vepari Grahak
+        </p>
       </div>
 
       <div className="border rounded-md flex items-center">
@@ -157,8 +174,7 @@ const Navbar = () => {
         </Link>
       </div>
 
-      {
-      userToken ? (
+      {userToken ? (
         <div className="relative text-gray-200">
           <button
             type="button"
@@ -175,7 +191,10 @@ const Navbar = () => {
               >
                 Profile
               </Link>
-              <Link href="/user/my-orders" className="border block my-1 text-center py-1 rounded-sm hover:bg-gray-800 hover:text-gray-50 transition-all">
+              <Link
+                href="/user/my-orders"
+                className="border block my-1 text-center py-1 rounded-sm hover:bg-gray-800 hover:text-gray-50 transition-all"
+              >
                 My Orders
               </Link>
               {/* <button
@@ -184,15 +203,37 @@ const Navbar = () => {
               >
                 {darkMode ? "Light Mode" : "Dark Mode"}
               </button> */}
-              <Link href="/user/likes" className="border block my-1 text-center py-1 rounded-sm hover:bg-gray-800 hover:text-gray-50 transition-all">
+              <Link
+                href="/user/likes"
+                className="border block my-1 text-center py-1 rounded-sm hover:bg-gray-800 hover:text-gray-50 transition-all"
+              >
                 Likes
               </Link>
-              <Link href="/user/faqs" className="border block my-1 text-center py-1 rounded-sm hover:bg-gray-800 hover:text-gray-50 transition-all">
+              <Link
+                href="/user/faqs"
+                className="border block my-1 text-center py-1 rounded-sm hover:bg-gray-800 hover:text-gray-50 transition-all"
+              >
                 Faqs
               </Link>
-              <Link href="/user/create-shop" className="border block my-1 text-center py-1 rounded-sm hover:bg-gray-800 hover:text-gray-50 transition-all">
-                Create Shop
-              </Link>
+              {getVepariData?.getVepariData?.isAdmin === true ? (
+                <>
+                  <Link
+                    href="/admin-vepari/profile"
+                    className="border block my-1 text-center py-1 rounded-sm hover:bg-gray-800 hover:text-gray-50 transition-all"
+                  >
+                    Vepari Studio
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link
+                    href="/user/create-shop"
+                    className="border block my-1 text-center py-1 rounded-sm hover:bg-gray-800 hover:text-gray-50 transition-all"
+                  >
+                    Create Shop
+                  </Link>
+                </>
+              )}
               <button
                 className="border block my-1 text-center py-1 bg-red-500 text-white rounded-md w-full cursor-pointer hover:bg-red-700"
                 onClick={handleLogout}
@@ -245,10 +286,11 @@ const Navbar = () => {
               onChange={(e) => setUser({ ...user, username: e.target.value })}
             />
             <input
-              type="number"
-              placeholder="Enter phone number"
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
               maxLength={10}
-              minLength={10}
+              placeholder="Enter phone number"
               className="w-full border px-3 py-2 rounded-md mb-3 focus:outline-none"
               value={user?.phone}
               onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -256,9 +298,12 @@ const Navbar = () => {
                   handleSignupLogin();
                 }
               }}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setUser({ ...user, phone: e.target.value })
-              }
+              onChange={(e) => {
+                const val = e.target.value;
+                if (/^\d{0,10}$/.test(val)) {
+                  setUser({ ...user, phone: val });
+                }
+              }}
             />
             <button
               className={`w-full bg-gray-800 text-white py-2 rounded-md cursor-pointer ${

@@ -5,7 +5,7 @@ import { userMiddleware } from "../middleware/authMiddleware"
 
 const router = express.Router()
 
-//register http://localhost:2914/api/register
+//register http://localhost:2929/api/register
 router.post("/register",registerController)
 
 

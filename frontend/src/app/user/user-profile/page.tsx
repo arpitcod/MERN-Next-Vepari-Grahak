@@ -104,6 +104,8 @@ const Page = () => {
             />
             <input
               type="number"
+              inputMode="numeric"
+              pattern="[0-9]*"
               placeholder="Enter phone number"
               maxLength={10}
               minLength={10}
@@ -118,6 +120,26 @@ const Page = () => {
                 setPrevUser({ ...prevUSer, phone: e.target.value })
               }
             />
+             {/* <input
+                          type="text"
+                          inputMode="numeric"
+                          pattern="[0-9]*"
+                          maxLength={10}
+                          placeholder="Enter phone number"
+                          className="w-full border px-3 py-2 rounded-md mb-3 focus:outline-none"
+                          value={user?.phone}
+                          onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+                            if (e.key === "Enter") {
+                              handleSignupLogin();
+                            }
+                          }}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            if (/^\d{0,10}$/.test(val)) {
+                              setUser({ ...user, phone: val });
+                            }
+                          }}
+                        /> */}
             <button
               className={`w-full bg-gray-800 text-white py-2 rounded-md cursor-pointer ${
                 prevUSer?.phone?.length < 10

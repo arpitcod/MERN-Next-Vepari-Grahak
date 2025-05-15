@@ -1,11 +1,36 @@
 "use client";
 import React, { useState } from "react";
+import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
-
 const CreateShop = () => {
-  const [shopData, setShopData] = useState({
-    banner: "",
-    profile: "",
+  
+  type ShopType={  
+    banner: File | null;
+    profile: File | null;
+    vepariname:string;
+    shopname: string;
+    description: string;
+    address:{
+      country: string;
+      state: string;
+      city: string;
+  
+    },
+    category: string;
+    contact: string;
+    shopTime:{
+      startTime:string;
+      endTime:string;
+    }
+  }
+
+  // token 
+  const token = localStorage.getItem("vg_token" )
+  // const [token] = useState(localStorage.getItem("vg_token" as string))
+  const [shopData, setShopData] = useState<ShopType>({
+    banner: null,
+    profile: null,
+    vepariname:"",
     shopname: "",
     description: "",
     address:{
@@ -21,11 +46,70 @@ const CreateShop = () => {
       endTime:""
     }
   });
-  const handleCreateShop = () => {
-    toast.success("shop create successfuly");
-    console.log(shopData);
+  
+  // dispatch 
+  const disPatch = useDispatch()
+  const handleCreateShop = async () => {
+    const formData = new FormData();
+
+    formData.append("vepariname",shopData.vepariname)
+    formData.append("shopname",shopData.shopname)
+    formData.append("description",shopData.description)
+    formData.append("country",shopData.address.country)
+    formData.append("state",shopData.address.state)
+    formData.append("city",shopData.address.city)
+    formData.append("category",shopData.category)
+    formData.append("contact",shopData.contact)
+    formData.append("startTime",shopData.shopTime.startTime)
+    formData.append("endTime",shopData.shopTime.endTime)
+
+    if (shopData.banner) {
+      formData.append("banner",shopData.banner)
+    }
+    if (shopData.profile) {
+      formData.append("profile",shopData.profile)
+    }
+    // Basic validation
+    if (!shopData.shopname.trim()) {
+      toast.error("Shop name is required");
+      return;
+    }
     
+    // toast.success("shop create successfuly");
+    // console.log(shopData);
+    try {
+      const response = await fetch("http://localhost:2929/api/create-shop", {
+        method: "POST",
+        headers: {
+          "Authorization": `${token}`
+        },
+        body: formData,
+      });
+      
+      const data = await response.json()
+  
+      if (response?.ok) {
+        toast.success(data.message || "Shop created successfully");
+        // disPatch()
+        console.log(response);
+        console.log(data);
+        console.log(token);
+        
+      }else {
+        toast.error(data.message || "Failed to create shop");
+        console.log("Error response:", data);
+      }
+    } catch (error) {
+      toast.error("Something went wrong while creating shop");
+      console.log(error);
+      console.log(shopData);
+      
+      
+    }
+
+   
   };
+  
   return (
     <div className="flex flex-col gap-3 h-full overflow-auto p-2">
       <p className="text-2xl text-center font-medium">Create Shop</p>
@@ -34,34 +118,77 @@ const CreateShop = () => {
         <label>Banner</label>
         <input
           type="file"
-          name=""
-          id=""
+          name="banner"
+          accept="image/*"
+          id="banner"
           className="border p-3 rounded-md"
-          onChange={(e) => setShopData({ ...shopData, banner: e.target.value })}
-          value={shopData.banner}
+          onChange={(e) => setShopData({ ...shopData, banner: e.target.files?.[0] || null })}
         />
       </div>
+        {/* preview banner  */}
+        {
+            shopData.banner ? (
+              <div className="flex justify-center items-center ">
+              { 
+                shopData?.banner && (
+                  <img src={URL.createObjectURL(shopData.banner)} alt="banner preview" className="w-[50%] "/>
+                )
+              }
+          </div>
+            ) : (
+              null
+            )
+        }
+     
 
       <div className="flex flex-col">
         <label>Profile</label>
         <input
           type="file"
-          name=""
-          id=""
+          name="profile"
+          id="profile"
+          accept="image/*"
           className="border p-3 rounded-md"
           onChange={(e) =>
-            setShopData({ ...shopData, profile: e.target.value })
+            setShopData({ ...shopData, profile: e.target.files?.[0] || null })
           }
-          value={shopData.profile}
         />
       </div>
 
+          {
+            shopData?.profile ? (
+              <div className="flex justify-center items-center ">
+        {
+          shopData.profile && (
+            <img src={URL.createObjectURL(shopData.profile)} alt="profile preview" className="w-[100px] h-[100px]"/>
+          )
+        }
+      </div>
+            ) : (
+              null
+            )
+          }
+
+      <div className="flex flex-col">
+        <label>Vepari Name</label>
+        <input
+          type="text"
+          name="vepariname"
+          id="vepariname"
+          placeholder="Enter vepari name"
+          className="border p-3 rounded-md"
+          onChange={(e) =>
+            setShopData({ ...shopData, vepariname: e.target.value })
+          }
+          value={shopData.vepariname}
+        />
+      </div>
       <div className="flex flex-col">
         <label>Shop Name</label>
         <input
           type="text"
-          name=""
-          id=""
+          name="shopname"
+          id="shopname"
           placeholder="Enter Shopname"
           className="border p-3 rounded-md"
           onChange={(e) =>
@@ -74,9 +201,9 @@ const CreateShop = () => {
       <div className="flex flex-col">
         <label>Description</label>
         <textarea
-          name=""
-          id=""
-          placeholder="write faq..."
+          name="description"
+          id="description"
+          placeholder="write description..."
           cols={70}
           rows={10}
           className="border rounded-md resize-none p-2 "
@@ -84,8 +211,6 @@ const CreateShop = () => {
             setShopData({ ...shopData, description: e.target.value })
           }
           value={shopData.description}
-          // onChange={(e) => setFaq(e.target.value)}
-          // value={faq}
         ></textarea>
       </div>
 
@@ -94,11 +219,11 @@ const CreateShop = () => {
           <label>Country</label>
           <input
             type="text"
-            name=""
-            id=""
+            name="country"
+            id="country"
             placeholder="Enter Country"
             className="border w-full p-3 rounded-md"
-            onChange={(e) => setShopData((prev) =>({...prev ,address:{...prev.address,country:e.target.value}}))
+            onChange={(e) => setShopData((prev) =>({...prev, address:{...prev.address, country:e.target.value}}))
             }
             value={shopData.address.country}
           />
@@ -107,12 +232,12 @@ const CreateShop = () => {
           <label>State</label>
           <input
             type="text"
-            name=""
-            id=""
+            name="state"
+            id="state"
             placeholder="Enter State"
             className="border w-full p-3 rounded-md"
             onChange={(e) =>setShopData((prev) =>({
-              ...prev,address:{...prev.address,state:e.target.value}
+              ...prev, address:{...prev.address, state:e.target.value}
             }))
             }
             value={shopData.address.state}
@@ -122,12 +247,12 @@ const CreateShop = () => {
           <label>City</label>
           <input
             type="text"
-            name=""
-            id=""
+            name="city"
+            id="city"
             placeholder="Enter City"
             className="border w-full p-3 rounded-md"
             onChange={(e) => setShopData((prev) => ({
-              ...prev,address:{...prev.address,city:e.target.value}
+              ...prev, address:{...prev.address, city:e.target.value}
             }))}
             value={shopData.address.city}
           />
@@ -137,8 +262,8 @@ const CreateShop = () => {
         <label>Category</label>
         <input
           type="text"
-          name=""
-          id=""
+          name="category"
+          id="category"
           placeholder="Enter Category"
           className="border p-3 rounded-md"
           onChange={(e) =>
@@ -150,9 +275,9 @@ const CreateShop = () => {
       <div className="flex flex-col">
         <label>Contact</label>
         <input
-          type="text"
-          name=""
-          id=""
+          type="number"
+          name="contact"
+          id="contact"
           placeholder="Enter Contact"
           className="border p-3 rounded-md"
           onChange={(e) =>
@@ -162,20 +287,20 @@ const CreateShop = () => {
         />
       </div>
 
-      <div className="flex grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-3">
         {/* <label>Shop Time</label> */}
 
       <div className="flex flex-col">
         <label>Start Time</label>
         <input
           type="time"
-          name=""
-          id=""
+          name="startTime"
+          id="startTime"
           placeholder="Enter Shop Time"
           className="border p-3 rounded-md"
           onChange={(e) =>
             setShopData((prev) => ({
-              ...prev,shopTime:{...prev.shopTime,startTime:e.target.value}
+              ...prev, shopTime:{...prev.shopTime, startTime:e.target.value}
             }))
           }
           value={shopData.shopTime.startTime}
@@ -185,13 +310,13 @@ const CreateShop = () => {
         <label>End Time</label>
         <input
           type="time"
-          name=""
-          id=""
+          name="endTime"
+          id="endTime"
           placeholder="Enter Shop Time"
           className="border p-3 rounded-md"
           onChange={(e) =>
             setShopData((prev) =>({
-              ...prev,shopTime:{...prev.shopTime,endTime:e.target.value}
+              ...prev, shopTime:{...prev.shopTime, endTime:e.target.value}
             }))
           }
           value={shopData.shopTime.endTime}

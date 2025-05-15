@@ -6,6 +6,7 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import shopRoutes from "./routes/createShop"
 import faqRoutes from "./routes/faqRouter"
+import path from "path";
 // Load environment variables
 dotenv.config();
 
@@ -13,6 +14,7 @@ dotenv.config();
 connectDb();
 
 const app = express();
+app.use("/uploads", express.static(path.join(__dirname, "../uploads")))
 
 // Middleware (Order Matters!)
 app.use(express.json());
@@ -37,3 +39,4 @@ const port = process.env.PORT || 5000; // Set default port if missing
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
 });
+

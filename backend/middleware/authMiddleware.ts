@@ -1,9 +1,12 @@
 import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import authModel from "../model/authModel";
+import createShopModel from "../model/createShopModel";
 
 interface AuthReq extends Request {
   user?: any;
+  isAdmin? :boolean;
+  vepariId?: string;
 }
 
 export const userMiddleware = async (rq: AuthReq, rs: Response, next: NextFunction) => {
@@ -33,8 +36,17 @@ export const userMiddleware = async (rq: AuthReq, rs: Response, next: NextFuncti
       return
     }
 
+    // const vepariId = await createShopModel.findById
+
+    // let vepariData = null;
+    // if (userData.vepari) {
+    //   vepariData = await createShopModel.findById(userData.vepari)
+    // }
+
     // rq.user = decode.id; // ✅ Assign correct type
-    rq.user = userData
+    rq.user = userData;
+    // rq.vepariId = vepariData?._id.toString();
+    // rq.isAdmin = vepariData?.isAdmin || false
     
     // rq.user = userData
     
@@ -44,4 +56,15 @@ export const userMiddleware = async (rq: AuthReq, rs: Response, next: NextFuncti
      rs.status(500).json({ success: false, message: "Error in middleware", error });
      return
   }
+};
+
+export const adminMiddleware = (req: AuthReq, res: Response, next: NextFunction) => {
+  if (!req.isAdmin) {
+     res.status(403).json({
+      success: false,
+      message: "Access Fail Vepari Admins Only",
+    });
+    return
+  }
+  next();
 };
