@@ -56,7 +56,7 @@ const Faqs = () => {
           value={faq}
         ></textarea>
       </div>
-      {/* <div className="border w-full text-center"> */}
+      {/* <div className="border w-96 text-center"> */}
         <button className="bg-gray-800  py-2 px-10 rounded-lg text-gray-50 hover:bg-gray-700 " onClick={handleFaqSubmit}>
           Submit
         </button>

@@ -27,19 +27,35 @@ const layout = ({children}) => {
           link:"/user/faqs"
         },
 
-        getVepariData ? (
-          {
-            name:"Create Shop",
-            link:"/user/create-shop"
-          }
+          //get vepari data
+         
+          // console.log("getVepariData",getVepariData.vepari.isAdmin);
           
-        ) : (
+            getVepariData?.vepari?.isAdmin === true ? (
+              {
+                name:"Vepari Studio",
+                link:"/admin-vepari/profile"
+              }
+            ) : (
+              {
+                name:"Create Shop",
+                link:"/user/create-shop"
+              }
+            )
           
-          {
-            name:"Vepari Studio",
-            link:"/admin-vepari/profile"
-          }
-        )
+      //   !getVepariData?.vepari?.isAdmin === true ? (
+      //     {
+      //     name:"Create Shop",
+      //     link:"/user/create-shop"
+      //   }
+          
+      //   ) : (
+      //     {
+      //    name:"Vepari Studio",
+      //    link:"/admin-vepari/profile"
+      //  }
+       
+      //   )
 
         
       ]
@@ -48,10 +64,10 @@ const layout = ({children}) => {
 
     <div className="flex justify-center gap-2 border py-2 bg-gray-100">
       <div className="border h-[550px] w-[200px] px-2 rounded-lg shadow-sm bg-white">
-         <h1 className="text-center text-xl font-medium mt-3"> {user?.user?.username}</h1>
+         <h1 className="text-center text-xl font-medium mt-3 text-capitalize"> {user?.user?.username}</h1>
          <div>
               {
-                  accountList.map((item,index) =>{
+                  accountList?.map((item,index) =>{
                     const isActive = pathName === item.link
 
                   return (

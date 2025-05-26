@@ -1,6 +1,6 @@
 import { deleteUserController, getAllUsersController, getSingleUserController, getUserProfile, logoutController, registerController, updateUserController } from "../controller/authController"
 
-import express, { Request, Response } from "express"
+import express, { Request, RequestHandler, Response } from "express"
 import { userMiddleware } from "../middleware/authMiddleware"
 
 const router = express.Router()
@@ -26,7 +26,7 @@ router.get("/logout",logoutController)
 
 
 //get user with token http://localhost:2929/api/get_user
-router.get("/get_user", userMiddleware, getUserProfile);
+router.get("/get_user", userMiddleware as RequestHandler, getUserProfile);
 // router.get("/get_user",userMiddleware,(rq:Request,rs:Response) =>{
 //     rs.json({
 //         success:true,

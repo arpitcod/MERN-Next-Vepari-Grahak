@@ -27,6 +27,9 @@ app.use(
     })
 );
 
+
+console.log(process.env.SERVER_LOCALHOST);
+
 // Routes
 app.use("/api", authRoutes);
 app.use("/api",shopRoutes)

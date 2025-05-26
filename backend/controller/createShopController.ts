@@ -75,8 +75,6 @@ export const createShopController = async (
     const profile =
       files?.profile?.[0]?.filename ||
       `https://ui-avatars.com/api/?name=${shopname}`;
-    // const profile = files?.banner?.[0]?.filename || `https://ui-avatars.com/api/?name=${shopname}`
-    // const shopProfile = profile || `https://ui-avatars.com/api/?name=${shopname}`;
 
     // Create new shop
     const newShop = await new createShopModel({
@@ -98,14 +96,12 @@ export const createShopController = async (
       contact,
       shopTime: {
         startTime,
-        endTime, // Handle end time if available
+        endTime,
       },
-    }).save()
+    }).save();
 
-    
-    // ✅ After saving the shop, update the user's vepari_shop field
-
-    await authModel.findByIdAndUpdate(userId,{vepari_shop:newShop._id})
+    // Update the user's vepari_shop field
+    await authModel.findByIdAndUpdate(userId, { vepari_shop: newShop._id });
 
     rs.status(201).json({
       success: true,
@@ -124,8 +120,6 @@ export const createShopController = async (
   }
 };
 
-// deleteShopController
-
 export const deleteShopController = async (rq: Request, rs: Response) => {
   try {
     const { id } = rq.params;
@@ -135,6 +129,7 @@ export const deleteShopController = async (rq: Request, rs: Response) => {
         success: false,
         message: "shop id not match",
       });
+      return;
     }
 
     const vepari_shop = await createShopModel.findById(id);
@@ -143,6 +138,7 @@ export const deleteShopController = async (rq: Request, rs: Response) => {
         success: false,
         message: "vepari shop not found",
       });
+      return;
     }
 
     await createShopModel.findByIdAndDelete(id);
@@ -152,6 +148,7 @@ export const deleteShopController = async (rq: Request, rs: Response) => {
       message: "shop deleted success",
       vepari_shop,
     });
+    return;
   } catch (error) {
     console.log(error);
     rs.status(500).json({
@@ -159,10 +156,9 @@ export const deleteShopController = async (rq: Request, rs: Response) => {
       message: "something went wrong server error",
       error,
     });
+    return;
   }
 };
-
-// get single vepari data controller
 
 export const getVepariController = async (rq: Request, rs: Response) => {
   try {
@@ -172,6 +168,7 @@ export const getVepariController = async (rq: Request, rs: Response) => {
         success: false,
         message: "vepari id not found",
       });
+      return;
     }
 
     const getVepariData = await createShopModel.findById(id).populate("user");
@@ -181,6 +178,7 @@ export const getVepariController = async (rq: Request, rs: Response) => {
         success: false,
         message: "vepari data not found",
       });
+      return;
     }
 
     rs.status(200).json({
@@ -188,6 +186,7 @@ export const getVepariController = async (rq: Request, rs: Response) => {
       message: "vepari data fetched",
       getVepariData,
     });
+    return;
   } catch (error) {
     console.log(error);
     rs.status(500).json({
@@ -195,34 +194,26 @@ export const getVepariController = async (rq: Request, rs: Response) => {
       message: "something went wrong",
       error,
     });
+    return;
   }
 };
-
-// update vepari profile
 
 export const updateVepariProfileController = async (
   rq: Request,
   rs: Response
-):Promise<void> => {
+): Promise<void> => {
   try {
     const { id } = rq.params;
     const { vepariname, shopname, description, category, contact } = rq.body;
 
-    // Extract address and shop time from form data
-    // const country = rq.body.country || "india";
-    // const state = rq.body.state || "";
-    // const city = rq.body.city || "";
-    // const startTime = rq.body.startTime || "";
-    // const endTime = rq.body.endTime || "";
-
     const { address = {}, shopTime = {} } = rq.body;
 
-const country = address.country || "india";
-const state = address.state || "";
-const city = address.city || "";
+    const country = address.country || "india";
+    const state = address.state || "";
+    const city = address.city || "";
 
-const startTime = shopTime.startTime || "";
-const endTime = shopTime.endTime || "";
+    const startTime = shopTime.startTime || "";
+    const endTime = shopTime.endTime || "";
 
     const files = rq.files as {
       banner?: Express.Multer.File[];
@@ -231,15 +222,15 @@ const endTime = shopTime.endTime || "";
 
     const existShop = await createShopModel.findById(id);
     if (!existShop) {
-       rs.status(404).json({
+      rs.status(404).json({
         success: false,
         message: "shop not found",
       });
-      return
+      return;
     }
 
     const banner = files?.banner?.[0]?.filename || "";
-const profile = files?.profile?.[0]?.filename || "";
+    const profile = files?.profile?.[0]?.filename || "";
 
     const updatedData = {
       vepariname,
@@ -247,80 +238,78 @@ const profile = files?.profile?.[0]?.filename || "";
       description,
       category,
       contact,
-      profile: profile 
-      ? (profile.startsWith("http") ? profile : `/uplodes/${profile.replace(/^\/?uplodes\/+/, "")}`)
-      : `https://ui-avatars.com/api/?name=${shopname}`,
-    
-    banner: banner 
-      ? `/uplodes/${banner.replace(/^\/?uplodes\/+/, "")}`
-      : "",
-      address:{
+      profile: profile
+        ? profile.startsWith("http")
+          ? profile
+          : `/uplodes/${profile.replace(/^\/?uplodes\/+/, "")}`
+        : `https://ui-avatars.com/api/?name=${shopname}`,
+      banner: banner ? `/uplodes/${banner.replace(/^\/?uplodes\/+/, "")}` : "",
+      address: {
         country,
         state,
-        city
+        city,
       },
-      shopTime:{
+      shopTime: {
         startTime,
-        endTime
-      }
+        endTime,
+      },
     };
 
-    const updatedShop = await createShopModel.findByIdAndUpdate(id,updatedData,{new:true})
+    const updatedShop = await createShopModel.findByIdAndUpdate(id, updatedData, {
+      new: true,
+    });
 
     rs.status(200).json({
-    success:true,
-    message:"shop profile updated",
-    updatedShop
-   })
-   return
+      success: true,
+      message: "shop profile updated",
+      updatedShop,
+    });
+    return;
   } catch (error) {
     console.log(error);
     rs.status(500).json({
       success: false,
       message: "something went wrong pls try again",
-      error
+      error,
     });
-    return
+    return;
   }
 };
 
-
-
-
-export const getVepariProfile = async ( rq:AuthRequest,rs:Response) =>{
+export const getVepariProfile = async (rq: AuthRequest, rs: Response) => {
   try {
-    
-    const userId = rq.user
+    const userId = rq.user;
     if (!userId) {
-      
       rs.status(404).json({
-        success:false,
-        message:"user not logged in"
-      })
+        success: false,
+        message: "user not logged in",
+      });
+      return;
     }
 
-    const vepari = await createShopModel.findOne({user:userId}).populate("user")
+    const vepari = await createShopModel.findOne({ user: userId }).populate("user");
 
     if (!vepari) {
       rs.status(404).json({
-        success:false,
-        message:"vepari profile not found"
-      })
+        success: false,
+        message: "vepari profile not found",
+      });
+      return;
     }
 
     rs.status(200).json({
-      success:true,
-      message:"vepari profile fetched",
-      vepari
-    })
+      success: true,
+      message: "vepari profile fetched",
+      vepari,
+    });
+    return;
   } catch (error) {
     console.log(error);
-
     rs.status(500).json({
-      success:false,
-      message:"something went wrong",
-      error
-      })
-    
+      success: false,
+      message: "something went wrong",
+      error,
+    });
+    return;
   }
-}
+};

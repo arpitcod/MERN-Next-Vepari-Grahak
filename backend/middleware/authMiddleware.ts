@@ -7,16 +7,29 @@ interface AuthReq extends Request {
   user?: any;
   isAdmin? :boolean;
   vepariId?: string;
+  vepari_shop?:string
 }
 
-export const userMiddleware = async (rq: AuthReq, rs: Response, next: NextFunction) => {
+export const userMiddleware = async (rq: AuthReq, rs: Response, next: NextFunction):Promise <void> =>  {
   try {
-    // Get token from cookies
-    const token = rq.headers.authorization;
-    if (!token) {
-       rs.status(400).json({ success: false, message: "Token not found" });
+    const authHeader = rq.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+       rs.status(401).json({ success: false, message: "Authorization header missing or malformed" });
        return
     }
+
+    
+    const token = authHeader.split(" ")[1];
+    console.log("Token received:", token); // ✅ For debugging
+    // Get token from cookies
+    // const token = rq.headers.authorization;
+    // const token = rq.headers.authorization?.split(" ")[1]; // split "Bearer token"
+    // if (!token) {
+    //    rs.status(400).json({ success: false, message: "Token not found" });
+    //    return
+    // }
+    // if (!token) throw new Error("No token found");
 
     // Decode token
     const decode = jwt.verify(token, process.env.JWT_KEY as string) as { id: string };
@@ -52,14 +65,23 @@ export const userMiddleware = async (rq: AuthReq, rs: Response, next: NextFuncti
     
     next();
   } catch (error) {
-    console.error(error);
-     rs.status(500).json({ success: false, message: "Error in middleware", error });
+    console.error("JWT verification failed:", error);
+     rs.status(401).json({ success: false, message: "Invalid or expired token", error });
      return
   }
 };
 
 export const adminMiddleware = (req: AuthReq, res: Response, next: NextFunction) => {
-  if (!req.isAdmin) {
+  // const existAdmin = await authModel.findById(req.user)
+  //   if (existAdmin?.vepari_shop === null) {
+  //     res.status(403).json({
+  //       success:false,
+  //        message: "Access Fail Vepari Admins Only",
+  //     })
+  //     return
+  //   }
+  
+ if (!req.vepari_shop)  {
      res.status(403).json({
       success: false,
       message: "Access Fail Vepari Admins Only",

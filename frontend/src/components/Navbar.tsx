@@ -7,58 +7,54 @@ import { MdAccountCircle } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { setUserData } from "../../redux/UserSlice";
-// import useGetUser from "@/getData/useGetUser";
-// import UserGetData from "@/getData/UserGetData";
+import { setGetVepari } from "../../redux/GetVepariSlice";
 import { useRouter } from "next/navigation";
 import { RootState } from "../../redux/store";
 import useGetUser from "@/getData/useGetUser";
-import useGetVepariData from "@/getData/useGetVepariData";
+import { fetchVepariData } from "@/getData/useGetVepariData";
 
 const Navbar = () => {
-
-
-  useGetUser()
-   useGetVepariData()
-  // console.log("from navbar",getVepari);
+  // Initialize data fetching hooks
+  // useGetVepariData();
   
-  // console.log("from navbar",getUser);
-  
-  const [showAccount, setShowAccount] = useState(false);
-  const [userToken, setUserToken] = useState<string | null>(null);
-  const [showLogin, setShowLogin] = useState(false);
-  // const [darkMode, setDarkMode] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  // dispatch
-  const disPatch = useDispatch();
-  //router
-  const router = useRouter();
 
-  //get vepari data
+  useGetUser();
+  
   const getVepariData = useSelector(
     (state: RootState) => state?.getVepari?.getVepari
   );
-  console.log("from navbar",getVepariData);
+
+  useEffect(() => {
+    console.log('Vepari data heregetVepariDAta', getVepariData)
+  }, [getVepariData]);
+
+  const [showAccount, setShowAccount] = useState(false);
+  const [userToken, setUserToken] = useState<string | null>(null);
+  const [showLogin, setShowLogin] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   
-  //login signup
+  const dispatch = useDispatch();
+  const router = useRouter();
+
   const [user, setUser] = useState({
     username: "",
     phone: "",
   });
 
-  // useGetUser()
   useEffect(() => {
     const token = localStorage.getItem("vg_token");
-    if (token) {
-      setUserToken(token);
-    }
-    // console.log(process.env.SERVER_LOCALHOST);
+    setUserToken(token);
   }, []);
-  // handle login sign up
 
   const handleSignupLogin = async () => {
+    if (!user.username || !user.phone) {
+      toast.error("Please fill in all fields");
+      return;
+    }
+
     setIsLoading(true);
     try {
-      const response = await fetch("http://localhost:2929/api/register", {
+      const response = await fetch("http://localhost:5000/api/register", {
         method: "POST",
         headers: {
           "content-type": "application/json",
@@ -67,88 +63,91 @@ const Navbar = () => {
       });
 
       const responseData = await response.json();
-      console.log(responseData);
 
       if (!response.ok) {
-        toast.error(responseData.message || "login/signup failed");
-        return;
+        throw new Error(responseData.message || "Login/signup failed");
       }
 
-      toast.success(responseData.message || "login successfull");
+      toast.success(responseData.message || "Login successful");
       localStorage.setItem("vg_token", responseData?.token);
       setUserToken(responseData?.token);
-      // disPatch(setUserData(responseData));
-
+      // useGetVepariData()
+      handleData()
       router.push("/");
       setUser({
         username: "",
         phone: "",
       });
-    } catch (error) {
-      console.log(error);
+      setShowLogin(false);
+    } catch (error: any) {
+      toast.error(error.message || "Something went wrong");
+      console.error("Login error:", error);
     } finally {
       setIsLoading(false);
-      setShowLogin(false);
     }
   };
 
-  // useEffect(() => {
-  //   const storedTheme = localStorage.getItem("theme");
-
-  //   if (storedTheme === "dark") {
-  //     document.documentElement.classList.add("dark");
-  //     setDarkMode(true);
-  //   } else {
-  //     document.documentElement.classList.remove("dark");
-  //     setDarkMode(false);
-  //   }
-  // }, []);
-
-  // const handleDarkMode = () => {
-  //   if (darkMode) {
-  //     document.documentElement.classList.remove("dark");
-  //     localStorage.setItem("theme", "light");
-  //     setDarkMode(false);
-  //   } else {
-  //     document.documentElement.classList.add("dark");
-  //     localStorage.setItem("theme", "dark");
-  //     setDarkMode(true);
-  //   }
-  // };
-  // toast.success("hare krishna")
-
-  // handleLogout
   const handleLogout = async () => {
+    setIsLoading(true);
+    const token = localStorage.getItem("vg_token");
+    
     try {
-      const response = await fetch("http://localhost:2929/api/logout", {
+      const response = await fetch("http://localhost:5000/api/logout", {
         method: "GET",
         headers: {
           "content-type": "application/json",
+           Authorization: `Bearer ${token}`,
         },
       });
       const responseData = await response.json();
 
       if (response?.ok) {
-        setIsLoading(true);
+        // Clear all local state
         localStorage.removeItem("vg_token");
         setUserToken(null);
+        dispatch(setUserData(null));
+        dispatch(setGetVepari({ vepari: null }));
+        
+        toast.success(responseData.message || "Logged out successfully");
+        setShowAccount(false);
         router.push("/");
-        disPatch(setUserData(null));
-        toast.success(responseData.message);
+      } else {
+        throw new Error(responseData.message || "Logout failed");
       }
-    } catch (error) {
-      console.log(error);
-      toast.error("something went wrong");
+    } catch (error: any) {
+      console.error("Logout error:", error);
+      toast.error(error.message || "Something went wrong during logout");
+      
+      // Even if the server request fails, clear local state for better UX
+      localStorage.removeItem("vg_token");
+      setUserToken(null);
+      dispatch(setUserData(null));
+      dispatch(setGetVepari({ vepari: null }));
+      setShowAccount(false);
+      router.push("/");
     } finally {
       setIsLoading(false);
     }
   };
 
-  // const userdata = UserGetData()
-  // console.log("from user geet data",userdata);
+
+  // get vepari data 
+    const handleData = async () =>{
+    const data =await fetchVepariData()
+    if (data) {
+       dispatch(setGetVepari(data));
+    }else{
+         dispatch(setGetVepari({ vepari: null }));
+    }
+  }
+  useEffect(()=>{
+    handleData()
+  },[])
+  // Determine if user is admin
+  // const isAdmin = getVepariData?.vepari?.isAdmin === true;
 
   return (
-    <div className=" px-2 flex justify-between items-center py-2 bg-white shadow-md">
+    <div className="px-2 flex justify-between items-center py-2 bg-white shadow-md">
       <div className="">
         <p className="text-2xl cursor-pointer text-amber-950 font-z">
           Vepari Grahak
@@ -161,14 +160,14 @@ const Navbar = () => {
           type="text"
           name="search"
           placeholder="search..."
-          className=" w-[500px] py-2 rounded-md focus:outline-none"
+          className="w-[500px] py-2 rounded-md focus:outline-none"
         />
       </div>
-      {/* homme  */}
+
       <div>
         <Link
           href="/"
-          className="py-2 px-5 bg-gray-800 text-white rounded-md  text-lg cursor-pointer"
+          className="py-2 px-5 bg-gray-800 text-white rounded-md text-lg cursor-pointer"
         >
           Home
         </Link>
@@ -182,6 +181,7 @@ const Navbar = () => {
             onClick={() => setShowAccount(!showAccount)}
           >
             <MdAccountCircle /> My Account
+            5
           </button>
           {showAccount && (
             <div className="border w-full absolute top-15 bg-white text-gray-800 rounded-sm p-1 shadow-xl">
@@ -197,12 +197,6 @@ const Navbar = () => {
               >
                 My Orders
               </Link>
-              {/* <button
-                className="border text-center py-1 w-full cursor-pointer"
-                onClick={handleDarkMode}
-              >
-                {darkMode ? "Light Mode" : "Dark Mode"}
-              </button> */}
               <Link
                 href="/user/likes"
                 className="border block my-1 text-center py-1 rounded-sm hover:bg-gray-800 hover:text-gray-50 transition-all"
@@ -215,37 +209,30 @@ const Navbar = () => {
               >
                 Faqs
               </Link>
-              {getVepariData?.getVepariData?.isAdmin === true ? (
-                <>
-                  <Link
-                    href="/admin-vepari/profile"
-                    className="border block my-1 text-center py-1 rounded-sm hover:bg-gray-800 hover:text-gray-50 transition-all"
-                  >
-                    Vepari Studio
-                  </Link>
-                </>
+              
+              {getVepariData?.vepari?.isAdmin === true ? (
+                <Link
+                  href="/admin-vepari/profile"
+                  className="border block my-1 text-center py-1 rounded-sm hover:bg-gray-800 hover:text-gray-50 transition-all"
+                >
+                  Vepari Studio
+                </Link>
               ) : (
-                <>
-                  <Link
-                    href="/user/create-shop"
-                    className="border block my-1 text-center py-1 rounded-sm hover:bg-gray-800 hover:text-gray-50 transition-all"
-                  >
-                    Create Shop
-                  </Link>
-                </>
+                <Link
+                  href="/user/create-shop"
+                  className="border block my-1 text-center py-1 rounded-sm hover:bg-gray-800 hover:text-gray-50 transition-all"
+                >
+                  Create Shop
+                </Link>
               )}
+              
               <button
                 className="border block my-1 text-center py-1 bg-red-500 text-white rounded-md w-full cursor-pointer hover:bg-red-700"
                 onClick={handleLogout}
+                disabled={isLoading}
               >
-                Logout
+                {isLoading ? "Logging out..." : "Logout"}
               </button>
-              {/* <Link
-                href="/"
-                className="border block my-1 text-center py-1 bg-red-500 text-white rounded-md"
-              >
-                Logout
-              </Link> */}
             </div>
           )}
         </div>
@@ -259,13 +246,14 @@ const Navbar = () => {
         </button>
       )}
 
-      {/* loading ...... */}
+      {/* Loading overlay */}
       {isLoading && (
         <div className="fixed flex justify-center items-center bg-[rgba(0,0,0,0.7)] inset-0">
           <div className="loader"></div>
         </div>
       )}
 
+      {/* Login/Signup modal */}
       {showLogin && (
         <div className="fixed inset-0 bg-[rgba(0,0,0,0.7)] flex justify-center items-center z-50">
           <div className="bg-white p-5 rounded-md shadow-lg w-96 relative">
@@ -307,16 +295,15 @@ const Navbar = () => {
             />
             <button
               className={`w-full bg-gray-800 text-white py-2 rounded-md cursor-pointer ${
-                user.phone.length < 10 ? "opacity-50 cursor-not-allowed" : ""
+                user.phone.length < 10 || !user.username
+                  ? "opacity-50 cursor-not-allowed"
+                  : ""
               }`}
               onClick={handleSignupLogin}
-              disabled={user.phone.length < 10}
+              disabled={user.phone.length < 10 || !user.username || isLoading}
             >
-              Login/Signup
+              {isLoading ? "Processing..." : "Login/Signup"}
             </button>
-            <p className="text-md font-bold text-red-500">
-              {isLoading && "loading...."}
-            </p>
           </div>
         </div>
       )}

@@ -1,45 +1,50 @@
 "use client"
 
 import { useDispatch } from "react-redux"
-// import { setUserData } from "../../redux/UserSlice"
 import { useEffect } from "react"
-// import { setGetUser } from "../../redux/GetUserSlice"
 import { setUserData } from "../../redux/UserSlice"
 
-const useGetUser = () =>{
-  // const [user,setUser] = useState({})
-  const disPatch = useDispatch()
-  useEffect(() =>{
-const token = localStorage.getItem("vg_token")
-  const getUser = async () =>{
-    try {
-      await fetch("http://localhost:2929/api/get_user", {
-        method: "GET",
-        headers: {
-          "content-type": "application/json",
-          "Authorization":token as string,
-        },
-      })
-        .then((response) => response.json())
-        .then((responseData) => {
-          if (responseData.success) {
-            disPatch(setUserData(responseData));
-            console.log(responseData);
-            
-          }
+const useGetUser = () => {
+  const dispatch = useDispatch()
+
+  useEffect(() => {
+    const getUser = async () => {
+      try {
+        const token = localStorage.getItem("vg_token");
+        if (!token) {
+          dispatch(setUserData(null));
+          return;
+        }
+
+        const response = await fetch(`http://localhost:5000/api/get_user`, {
+          method: "GET",
+          headers: {
+            "content-type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
         });
 
-       
-      
-    } catch (error) {
-      console.log(error);
-      
-    }
-  }
-  getUser()
-},[disPatch])
+        const data = await response.json();
 
-}
+        if (!response.ok) {
+          throw new Error(data.message || 'Failed to fetch user data');
+        }
 
+        if (data.success) {
+          dispatch(setUserData(data));
+        } else {
+          dispatch(setUserData(null));
+        }
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+        dispatch(setUserData(null));
+        // Optionally remove token if it's invalid
+        localStorage.removeItem("vg_token");
+      }
+    };
 
-export default useGetUser
+    getUser();
+  }, [dispatch]);
+};
+
+export default useGetUser;
