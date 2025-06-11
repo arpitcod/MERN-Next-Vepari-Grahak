@@ -1,101 +1,100 @@
 "use client";
+import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 const CreateShop = () => {
-  
-  type ShopType={  
+  type ShopType = {
     banner: File | null;
     profile: File | null;
-    vepariname:string;
+    vepariname: string;
     shopname: string;
     description: string;
-    address:{
+    address: {
       country: string;
       state: string;
       city: string;
-  
-    },
+    };
     category: string;
     contact: string;
-    shopTime:{
-      startTime:string;
-      endTime:string;
-    }
-  }
+    shopTime: {
+      startTime: string;
+      endTime: string;
+    };
+  };
 
-  // token 
-  const token = localStorage.getItem("vg_token" )
+  const router = useRouter();
+  // token
+  const token = localStorage.getItem("vg_token");
   // const [token] = useState(localStorage.getItem("vg_token" as string))
   const [shopData, setShopData] = useState<ShopType>({
     banner: null,
     profile: null,
-    vepariname:"",
+    vepariname: "",
     shopname: "",
     description: "",
-    address:{
+    address: {
       country: "india",
       state: "",
       city: "",
-
     },
     category: "",
     contact: "",
-    shopTime:{
-      startTime:"",
-      endTime:""
-    }
+    shopTime: {
+      startTime: "",
+      endTime: "",
+    },
   });
-  
-  // dispatch 
-  const disPatch = useDispatch()
+
+  // dispatch
+  // const disPatch = useDispatch()
   const handleCreateShop = async () => {
     const formData = new FormData();
 
-    formData.append("vepariname",shopData.vepariname)
-    formData.append("shopname",shopData.shopname)
-    formData.append("description",shopData.description)
-    formData.append("country",shopData.address.country)
-    formData.append("state",shopData.address.state)
-    formData.append("city",shopData.address.city)
-    formData.append("category",shopData.category)
-    formData.append("contact",shopData.contact)
-    formData.append("startTime",shopData.shopTime.startTime)
-    formData.append("endTime",shopData.shopTime.endTime)
+    formData.append("vepariname", shopData.vepariname);
+    formData.append("shopname", shopData.shopname);
+    formData.append("description", shopData.description);
+    formData.append("country", shopData.address.country);
+    formData.append("state", shopData.address.state);
+    formData.append("city", shopData.address.city);
+    formData.append("category", shopData.category);
+    formData.append("contact", shopData.contact);
+    formData.append("startTime", shopData.shopTime.startTime);
+    formData.append("endTime", shopData.shopTime.endTime);
 
     if (shopData.banner) {
-      formData.append("banner",shopData.banner)
+      formData.append("banner", shopData.banner);
     }
     if (shopData.profile) {
-      formData.append("profile",shopData.profile)
+      formData.append("profile", shopData.profile);
     }
     // Basic validation
     if (!shopData.shopname.trim()) {
       toast.error("Shop name is required");
       return;
     }
-    
+
     // toast.success("shop create successfuly");
     // console.log(shopData);
     try {
-      const response = await fetch("http://localhost:2929/api/create-shop", {
+      const response = await fetch("http://localhost:5000/api/create-shop", {
         method: "POST",
         headers: {
-          "Authorization": `${token}`
+          Authorization: `Bearer ${token}`,
         },
         body: formData,
       });
-      
-      const data = await response.json()
-  
+
+      const data = await response.json();
+
       if (response?.ok) {
+        router.push("/dashboard");
         toast.success(data.message || "Shop created successfully");
         // disPatch()
         console.log(response);
         console.log(data);
         console.log(token);
-        
-      }else {
+      } else {
         toast.error(data.message || "Failed to create shop");
         console.log("Error response:", data);
       }
@@ -103,13 +102,9 @@ const CreateShop = () => {
       toast.error("Something went wrong while creating shop");
       console.log(error);
       console.log(shopData);
-      
-      
     }
-
-   
   };
-  
+
   return (
     <div className="flex flex-col gap-3 h-full overflow-auto p-2">
       <p className="text-2xl text-center font-medium">Create Shop</p>
@@ -122,24 +117,23 @@ const CreateShop = () => {
           accept="image/*"
           id="banner"
           className="border p-3 rounded-md"
-          onChange={(e) => setShopData({ ...shopData, banner: e.target.files?.[0] || null })}
+          onChange={(e) =>
+            setShopData({ ...shopData, banner: e.target.files?.[0] || null })
+          }
         />
       </div>
-        {/* preview banner  */}
-        {
-            shopData.banner ? (
-              <div className="flex justify-center items-center ">
-              { 
-                shopData?.banner && (
-                  <img src={URL.createObjectURL(shopData.banner)} alt="banner preview" className="w-[50%] "/>
-                )
-              }
-          </div>
-            ) : (
-              null
-            )
-        }
-     
+      {/* preview banner  */}
+      {shopData.banner ? (
+        <div className="flex justify-center items-center ">
+          {shopData?.banner && (
+            <img
+              src={URL.createObjectURL(shopData.banner)}
+              alt="banner preview"
+              className="w-[50%] "
+            />
+          )}
+        </div>
+      ) : null}
 
       <div className="flex flex-col">
         <label>Profile</label>
@@ -155,19 +149,17 @@ const CreateShop = () => {
         />
       </div>
 
-          {
-            shopData?.profile ? (
-              <div className="flex justify-center items-center ">
-        {
-          shopData.profile && (
-            <img src={URL.createObjectURL(shopData.profile)} alt="profile preview" className="w-[100px] h-[100px]"/>
-          )
-        }
-      </div>
-            ) : (
-              null
-            )
-          }
+      {shopData?.profile ? (
+        <div className="flex justify-center items-center ">
+          {shopData.profile && (
+            <img
+              src={URL.createObjectURL(shopData.profile)}
+              alt="profile preview"
+              className="w-[100px] h-[100px]"
+            />
+          )}
+        </div>
+      ) : null}
 
       <div className="flex flex-col">
         <label>Vepari Name</label>
@@ -223,7 +215,11 @@ const CreateShop = () => {
             id="country"
             placeholder="Enter Country"
             className="border w-full p-3 rounded-md"
-            onChange={(e) => setShopData((prev) =>({...prev, address:{...prev.address, country:e.target.value}}))
+            onChange={(e) =>
+              setShopData((prev) => ({
+                ...prev,
+                address: { ...prev.address, country: e.target.value },
+              }))
             }
             value={shopData.address.country}
           />
@@ -236,9 +232,11 @@ const CreateShop = () => {
             id="state"
             placeholder="Enter State"
             className="border w-full p-3 rounded-md"
-            onChange={(e) =>setShopData((prev) =>({
-              ...prev, address:{...prev.address, state:e.target.value}
-            }))
+            onChange={(e) =>
+              setShopData((prev) => ({
+                ...prev,
+                address: { ...prev.address, state: e.target.value },
+              }))
             }
             value={shopData.address.state}
           />
@@ -251,9 +249,12 @@ const CreateShop = () => {
             id="city"
             placeholder="Enter City"
             className="border w-full p-3 rounded-md"
-            onChange={(e) => setShopData((prev) => ({
-              ...prev, address:{...prev.address, city:e.target.value}
-            }))}
+            onChange={(e) =>
+              setShopData((prev) => ({
+                ...prev,
+                address: { ...prev.address, city: e.target.value },
+              }))
+            }
             value={shopData.address.city}
           />
         </div>
@@ -290,42 +291,44 @@ const CreateShop = () => {
       <div className="grid grid-cols-2 gap-3">
         {/* <label>Shop Time</label> */}
 
-      <div className="flex flex-col">
-        <label>Start Time</label>
-        <input
-          type="time"
-          name="startTime"
-          id="startTime"
-          placeholder="Enter Shop Time"
-          className="border p-3 rounded-md"
-          onChange={(e) =>
-            setShopData((prev) => ({
-              ...prev, shopTime:{...prev.shopTime, startTime:e.target.value}
-            }))
-          }
-          value={shopData.shopTime.startTime}
-        />
-      </div>
-      <div className="flex flex-col">
-        <label>End Time</label>
-        <input
-          type="time"
-          name="endTime"
-          id="endTime"
-          placeholder="Enter Shop Time"
-          className="border p-3 rounded-md"
-          onChange={(e) =>
-            setShopData((prev) =>({
-              ...prev, shopTime:{...prev.shopTime, endTime:e.target.value}
-            }))
-          }
-          value={shopData.shopTime.endTime}
-        />
-      </div>
+        <div className="flex flex-col">
+          <label>Start Time</label>
+          <input
+            type="time"
+            name="startTime"
+            id="startTime"
+            placeholder="Enter Shop Time"
+            className="border p-3 rounded-md"
+            onChange={(e) =>
+              setShopData((prev) => ({
+                ...prev,
+                shopTime: { ...prev.shopTime, startTime: e.target.value },
+              }))
+            }
+            value={shopData.shopTime.startTime}
+          />
+        </div>
+        <div className="flex flex-col">
+          <label>End Time</label>
+          <input
+            type="time"
+            name="endTime"
+            id="endTime"
+            placeholder="Enter Shop Time"
+            className="border p-3 rounded-md"
+            onChange={(e) =>
+              setShopData((prev) => ({
+                ...prev,
+                shopTime: { ...prev.shopTime, endTime: e.target.value },
+              }))
+            }
+            value={shopData.shopTime.endTime}
+          />
+        </div>
       </div>
       <div className="flex flex-col">
         <button
-          className="border p-3 rounded-md bg-gray-800 text-indigo-50 hover:bg-gray-700 cursor-pointer"
+          className="border p-3 rounded-md bg-indigo-500 text-indigo-50 hover:bg-indigo-600 cursor-pointer"
           onClick={handleCreateShop}
         >
           Create Shop

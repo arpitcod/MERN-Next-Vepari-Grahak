@@ -72,9 +72,12 @@ export const createShopController = async (
 
     // Generate shop profile
     const banner = files?.banner?.[0]?.filename || "";
-    const profile =
-      files?.profile?.[0]?.filename ||
-      `https://ui-avatars.com/api/?name=${shopname}`;
+    // const profile =
+    //   files?.profile?.[0]?.filename ||
+    //   `https://ui-avatars.com/api/?name=${shopname}`;
+    const profileUrl = files?.profile?.[0]?.filename
+  ? `/uploads/${files.profile[0].filename}`
+  : `https://ui-avatars.com/api/?name=${shopname}`;
 
     // Create new shop
     const newShop = await new createShopModel({
@@ -82,10 +85,9 @@ export const createShopController = async (
       shopname,
       user: userId,
       description,
-      profile: profile
-        ? `/uplodes/${profile}`
-        : `https://ui-avatars.com/api/?name=${shopname}`,
-      banner: banner ? `/uplodes/${banner}` : "",
+      profile:profileUrl,
+      // profile: profile ? `/uploads/${profile}`  : `https://ui-avatars.com/api/?name=${shopname}`,
+      banner: banner ? `/uploads/${banner}` : "", 
       isAdmin: true,
       address: {
         country,
@@ -201,19 +203,16 @@ export const getVepariController = async (rq: Request, rs: Response) => {
 export const updateVepariProfileController = async (
   rq: Request,
   rs: Response
-): Promise<void> => {
+) => {
   try {
     const { id } = rq.params;
-    const { vepariname, shopname, description, category, contact } = rq.body;
+const { vepariname, shopname, description, category, contact } = rq.body;
 
-    const { address = {}, shopTime = {} } = rq.body;
-
-    const country = address.country || "india";
-    const state = address.state || "";
-    const city = address.city || "";
-
-    const startTime = shopTime.startTime || "";
-    const endTime = shopTime.endTime || "";
+     const country = rq.body.address?.country || "india";
+const state = rq.body.address?.state || "";
+const city = rq.body.address?.city || "";
+const startTime = rq.body.shopTime?.startTime || "";
+const endTime = rq.body.shopTime?.endTime || "";
 
     const files = rq.files as {
       banner?: Express.Multer.File[];
@@ -229,29 +228,39 @@ export const updateVepariProfileController = async (
       return;
     }
 
-    const banner = files?.banner?.[0]?.filename || "";
-    const profile = files?.profile?.[0]?.filename || "";
+      const banner = files?.banner?.[0]?.filename || "";
 
+      // const banner = files?.banner?.[0]?.filename || "";
+    // const profile =
+    //   files?.profile?.[0]?.filename ||
+    //   `https://ui-avatars.com/api/?name=${shopname}`;
+    const profileUrl = files?.profile?.[0]?.filename
+  ? `/uploads/${files.profile[0].filename}`
+  : `https://ui-avatars.com/api/?name=${shopname || existShop.shopname}`;
+// const profileUrl =
+//   files?.profile?.[0]?.filename
+//     ? `/uploads/${files.profile[0].filename}`
+//     : existShop.profile || `https://ui-avatars.com/api/?name=${shopname}`;
+
+    console.log(rq.body);
+    
     const updatedData = {
-      vepariname,
-      shopname,
-      description,
-      category,
-      contact,
-      profile: profile
-        ? profile.startsWith("http")
-          ? profile
-          : `/uplodes/${profile.replace(/^\/?uplodes\/+/, "")}`
-        : `https://ui-avatars.com/api/?name=${shopname}`,
-      banner: banner ? `/uplodes/${banner.replace(/^\/?uplodes\/+/, "")}` : "",
+      vepariname:vepariname,
+      shopname:shopname || existShop.shopname,
+      description:description || existShop.description,
+      category:category || existShop.category,
+      contact:contact || existShop.contact,
+     profile:profileUrl,
+      // banner: banner ? `/uploads/${banner}` : "",
+      banner: banner ? `/uploads/${banner}` : existShop.banner || "", 
       address: {
-        country,
-        state,
-        city,
+        country:country || existShop.address?.country||"india",
+        state:state || existShop.address?.state,
+        city:city || existShop.address?.city,
       },
       shopTime: {
-        startTime,
-        endTime,
+        startTime:startTime || existShop.shopTime?.startTime,
+        endTime:endTime || existShop.shopTime?.endTime,
       },
     };
 
@@ -311,5 +320,109 @@ export const getVepariProfile = async (rq: AuthRequest, rs: Response) => {
       error,
     });
     return;
+  }
+};
+
+// get profile 
+
+export const getVepariProfileBannerController = async (rq:Request,rs:Response) =>{
+  try {
+
+    const {id} = rq.params
+
+    if (!id) {
+      rs.status(400).json({
+        success:false,
+        message:"id not found"
+      })
+      return
+    }
+const getBannerProfile = await createShopModel.findById(id).select("profile banner"); 
+    // if (getBannerProfile?.profile){
+    //    rs.set("Content-type",getBannerProfile.profile)
+    //         rs.status(200).send(getBannerProfile.profile.contentType)
+    //         return
+    // }
+
+    if (!getBannerProfile) {
+      rs.status(404).json({
+        success:false,
+        message:"vepari not found"
+      })
+      return
+    }
+
+
+   const host = `${rq.protocol}://${rq.get("host")}`;
+    const profileUrl = getBannerProfile.profile?.startsWith("http")
+      ? getBannerProfile.profile
+      : `${host}${getBannerProfile.profile}`;
+    const bannerUrl = getBannerProfile.banner
+      ? `${host}${getBannerProfile.banner}`
+      : "";
+
+    rs.status(200).json({
+      success:true,
+      message:"vepari banner and profile fetched",
+      profileUrl,
+      bannerUrl
+    })
+    
+  } catch (error) {
+    console.log(error);
+    rs.status(500).json({
+      success:false,
+      message:"something went wrong",
+      error
+    })
+    
+  }
+}
+
+
+// get vepari single banner 
+
+export const getVepariBanner = async (rq:Request,rs:Response) =>{
+  try {
+    const {id} = rq.params
+    const getBanner = await createShopModel.findById(id).select("banner")
+    if (!getBanner) {
+      rs.status(404).json({
+        success:false,
+        message:"banner not found"
+      })
+      return
+    }
+
+    rs.status(200).json({
+      success:true,
+      message:"vepari banner fethced",
+      getBanner
+    })
+  } catch (error) {
+    rs.status(500).json({
+      success:false,
+      message:"something went wrong",
+      error
+    })
+    
+  }
+}
+
+
+export const getAllShopsController = async (rq: Request, rs: Response) => {
+  try {
+    const allShops = await createShopModel.find().populate("user");
+    rs.status(200).json({
+      success: true,
+      message: "All shops fetched",
+      allShops,
+    });
+  } catch (error) {
+    rs.status(500).json({
+      success: false,
+      message: "Server error",
+      error,
+    });
   }
 };

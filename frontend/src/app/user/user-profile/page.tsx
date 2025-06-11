@@ -71,13 +71,13 @@ const Page = () => {
   };
 
   return (
-    <div>
+    <div className="">
       {/* <h1 className="text-center text-xl font-medium mt-3"> {user?.user?.username}</h1> */}
-      <div className="border py-3 mx-3 flex items-center mt-3 rounded-md">
+      <div className="border py-3 mx-3 flex items-center mt-3 rounded-md bg-white">
         <HiUser className="text-2xl mx-1" />
         <p className="text-lg font-medium">{user?.user?.username}</p>
       </div>
-      <div className="border py-3 mx-3 flex items-center mt-3 rounded-md">
+      <div className="border py-3 mx-3 flex items-center mt-3 rounded-md bg-white">
         <FaPhoneAlt className="text-xl mx-2" />
         <p className="text-lg font-medium">{user?.user?.phone}</p>
       </div>
@@ -158,7 +158,7 @@ const Page = () => {
         </div>
       )}
       <button
-        className="border py-2 mt-3 rounded-md  mx-3 flex items-center px-2 cursor-pointer"
+        className="border py-2 mt-3 rounded-md  mx-3 flex items-center px-2 cursor-pointer bg-white"
         onClick={handleShowBox}
       >
         <MdEdit className="mx-1 text-xl text-center" /> Edit Profile

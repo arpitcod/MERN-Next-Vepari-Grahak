@@ -146,28 +146,31 @@ const Navbar = () => {
   // Determine if user is admin
   // const isAdmin = getVepariData?.vepari?.isAdmin === true;
 
+  
+
   return (
-    <div className="px-2 flex justify-between items-center py-2 bg-white shadow-md">
+    <div className="px-2 flex flex-col sm:justify-between sm:flex-row items-center py-3 bg-white shadow-md gap-3">
+    {/* <div className="px-2 grid grid-cols-5 items-center py-2 bg-white shadow-md "> */}
       <div className="">
-        <p className="text-2xl cursor-pointer text-amber-950 font-z">
+        <p className="text-2xl cursor-pointer text-indigo-900 ">
           Vepari Grahak
         </p>
       </div>
 
-      <div className="border rounded-md flex items-center">
+      <div className="border rounded-md flex items-center w-full sm:w-fit px-2">
         <FaSearch className="mx-2 text-lg" />
         <input
           type="text"
           name="search"
           placeholder="search..."
-          className="w-[500px] py-2 rounded-md focus:outline-none"
+          className=" sm:w-[500px] py-3 rounded-md focus:outline-none "
         />
       </div>
 
       <div>
         <Link
           href="/"
-          className="py-2 px-5 bg-gray-800 text-white rounded-md text-lg cursor-pointer"
+          className="py-3 px-5 bg-indigo-500 hover:bg-indigo-600 transition-all text-white rounded-md text-lg cursor-pointer"
         >
           Home
         </Link>
@@ -177,35 +180,35 @@ const Navbar = () => {
         <div className="relative text-gray-200">
           <button
             type="button"
-            className="py-2 px-5 bg-gray-800 text-white rounded-md flex items-center gap-1 text-lg cursor-pointer"
+            className="py-3 px-7 bg-indigo-500 hover:bg-indigo-600 transition-all text-white rounded-md flex items-center gap-1 text-lg cursor-pointer"
             onClick={() => setShowAccount(!showAccount)}
           >
             <MdAccountCircle /> My Account
-            5
+            
           </button>
           {showAccount && (
-            <div className="border w-full absolute top-15 bg-white text-gray-800 rounded-sm p-1 shadow-xl">
+            <div className="border border-indigo-600 w-full absolute top-15 bg-white  text-gray-800 rounded-md p-1 shadow-xl">
               <Link
                 href="/user/user-profile"
-                className="border block my-1 text-center py-1 rounded-sm hover:bg-gray-800 hover:text-gray-50 transition-all"
+                className="border block my-1 text-center py-2 rounded-md bg-indigo-500 hover:bg-indigo-600  text-white transition-all"
               >
                 Profile
               </Link>
               <Link
                 href="/user/my-orders"
-                className="border block my-1 text-center py-1 rounded-sm hover:bg-gray-800 hover:text-gray-50 transition-all"
+                className="border block my-1 text-center py-2 rounded-md bg-indigo-500 hover:bg-indigo-600  text-white transition-all"
               >
                 My Orders
               </Link>
               <Link
                 href="/user/likes"
-                className="border block my-1 text-center py-1 rounded-sm hover:bg-gray-800 hover:text-gray-50 transition-all"
+                className="border block my-1 text-center py-2 rounded-md bg-indigo-500 hover:bg-indigo-600  text-white transition-all"
               >
                 Likes
               </Link>
               <Link
                 href="/user/faqs"
-                className="border block my-1 text-center py-1 rounded-sm hover:bg-gray-800 hover:text-gray-50 transition-all"
+                className="border block my-1 text-center py-2 rounded-md bg-indigo-500 hover:bg-indigo-600  text-white transition-all"
               >
                 Faqs
               </Link>
@@ -213,21 +216,21 @@ const Navbar = () => {
               {getVepariData?.vepari?.isAdmin === true ? (
                 <Link
                   href="/admin-vepari/profile"
-                  className="border block my-1 text-center py-1 rounded-sm hover:bg-gray-800 hover:text-gray-50 transition-all"
+                  className="border block my-1 text-center py-2 rounded-md bg-indigo-500 hover:bg-indigo-600  text-white transition-all"
                 >
                   Vepari Studio
                 </Link>
               ) : (
                 <Link
                   href="/user/create-shop"
-                  className="border block my-1 text-center py-1 rounded-sm hover:bg-gray-800 hover:text-gray-50 transition-all"
+                  className="border block my-1 text-center py-2 rounded-md bg-indigo-500 hover:bg-indigo-600  text-white transition-all"
                 >
                   Create Shop
                 </Link>
               )}
               
               <button
-                className="border block my-1 text-center py-1 bg-red-500 text-white rounded-md w-full cursor-pointer hover:bg-red-700"
+                className="border block my-1 text-center py-2 bg-red-500 text-white rounded-md w-full cursor-pointer hover:bg-red-700"
                 onClick={handleLogout}
                 disabled={isLoading}
               >
@@ -239,12 +242,13 @@ const Navbar = () => {
       ) : (
         <button
           type="button"
-          className="py-2 px-8 bg-gray-800 text-white rounded-md flex items-center gap-2 text-lg cursor-pointer"
+          className="py-2 px-8 bg-indigo-500 hover:bg-indigo-600 transition-all text-white rounded-md flex items-center gap-2 text-lg cursor-pointer"
           onClick={() => setShowLogin(!showLogin)}
         >
           Login/Signup
         </button>
-      )}
+      )
+      }
 
       {/* Loading overlay */}
       {isLoading && (
@@ -311,7 +315,7 @@ const Navbar = () => {
       <div>
         <button
           type="button"
-          className="py-2 px-5 bg-gray-800 text-white rounded-md flex items-center gap-2 text-lg"
+          className="py-3 px-5 bg-indigo-500 hover:bg-indigo-600 transition-all cursor-pointer text-white rounded-md flex items-center gap-2 text-lg"
         >
           <FaShoppingCart /> My Cart
         </button>

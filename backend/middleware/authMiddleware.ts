@@ -7,7 +7,7 @@ interface AuthReq extends Request {
   user?: any;
   isAdmin? :boolean;
   vepariId?: string;
-  vepari_shop?:string
+  vepari_shop?:string | null
 }
 
 export const userMiddleware = async (rq: AuthReq, rs: Response, next: NextFunction):Promise <void> =>  {
@@ -57,11 +57,14 @@ export const userMiddleware = async (rq: AuthReq, rs: Response, next: NextFuncti
     // }
 
     // rq.user = decode.id; // ✅ Assign correct type
-    rq.user = userData;
+     rq.user = userData;
+    rq.vepari_shop = userData.vepari_shop?._id?.toString() || null;
+    rq.isAdmin = (userData.vepari_shop as any)?.isAdmin || false;
     // rq.vepariId = vepariData?._id.toString();
     // rq.isAdmin = vepariData?.isAdmin || false
     
     // rq.user = userData
+    
     
     next();
   } catch (error) {
@@ -72,21 +75,12 @@ export const userMiddleware = async (rq: AuthReq, rs: Response, next: NextFuncti
 };
 
 export const adminMiddleware = (req: AuthReq, res: Response, next: NextFunction) => {
-  // const existAdmin = await authModel.findById(req.user)
-  //   if (existAdmin?.vepari_shop === null) {
-  //     res.status(403).json({
-  //       success:false,
-  //        message: "Access Fail Vepari Admins Only",
-  //     })
-  //     return
-  //   }
-  
- if (!req.vepari_shop)  {
-     res.status(403).json({
+  if (req.user?.vepari_shop === null ) {
+    res.status(403).json({
       success: false,
       message: "Access Fail Vepari Admins Only",
     });
-    return
+    return;
   }
   next();
 };

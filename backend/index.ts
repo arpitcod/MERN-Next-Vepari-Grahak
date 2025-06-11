@@ -14,7 +14,7 @@ dotenv.config();
 connectDb();
 
 const app = express();
-app.use("/uploads", express.static(path.join(__dirname, "../uploads")))
+app.use("/uploads", express.static(path.resolve("uploads")));
 
 // Middleware (Order Matters!)
 app.use(express.json());
@@ -26,6 +26,7 @@ app.use(
         credentials: true, // ✅ Correct key name
     })
 );
+
 
 
 console.log(process.env.SERVER_LOCALHOST);

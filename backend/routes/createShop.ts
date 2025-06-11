@@ -1,5 +1,5 @@
 import express from "express"
-import { createShopController, deleteShopController, getVepariController, getVepariProfile, updateVepariProfileController } from "../controller/createShopController"
+import { createShopController, deleteShopController, getVepariBanner, getVepariController, getVepariProfile, getVepariProfileBannerController, updateVepariProfileController } from "../controller/createShopController"
 import { adminMiddleware, userMiddleware } from "../middleware/authMiddleware";
 import { upload } from "../middleware/multerMiddleware";
 
@@ -20,14 +20,18 @@ router.delete("/delete-shop/:id",userMiddleware,adminMiddleware,deleteShopContro
 //get vepari http://localhost:2929/api/get-vepari/680cabb729b21acc6ff4a26b
 router.get("/get-vepari/:id",userMiddleware,adminMiddleware,getVepariController)
 
-//update shop profile --> http://localhost:2929/api/shop-profile-update/680cabb729b21acc6ff4a26b
-router.put("/shop-profile-update/:id",adminMiddleware,updateVepariProfileController)
+//update shop profile --> http://localhost:5000/api/shop-profile-update/680cabb729b21acc6ff4a26b
+router.put("/shop-profile-update/:id", userMiddleware, adminMiddleware, updateVepariProfileController)
 
 
 // get vepari profile http://localhost:2929/api/get-vepari-profile
 router.get("/get-vepari-profile",userMiddleware,getVepariProfile)
 
+//get vepari profile and banner http://localhost:5000/api/get-vepari-banner-profile/68404622769332e86441cd98
+router.get("/get-vepari-banner-profile/:id", userMiddleware, adminMiddleware, getVepariProfileBannerController)
 
+// get bepari banner
+router.get('/get-vepari-banner/:id',adminMiddleware,getVepariBanner)
 
 
 
