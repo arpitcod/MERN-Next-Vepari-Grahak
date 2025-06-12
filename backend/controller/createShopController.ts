@@ -206,13 +206,24 @@ export const updateVepariProfileController = async (
 ) => {
   try {
     const { id } = rq.params;
-const { vepariname, shopname, description, category, contact } = rq.body;
+ const {
+      vepariname,
+      shopname,
+      description,
+      category,
+      contact,
+      country, // સીધા rq.body માંથી લો
+      state, // સીધા rq.body માંથી લો
+      city, // સીધા rq.body માંથી લો
+      startTime, // સીધા rq.body માંથી લો
+      endTime, // સીધા rq.body માંથી લો
+    } = await rq.body;
 
-     const country = rq.body.address?.country || "india";
-const state = rq.body.address?.state || "";
-const city = rq.body.address?.city || "";
-const startTime = rq.body.shopTime?.startTime || "";
-const endTime = rq.body.shopTime?.endTime || "";
+//      const country = rq.body.address?.country || "india";
+// const state = rq.body.address?.state || "";
+// const city = rq.body.address?.city || "";
+// const startTime = rq.body.shopTime?.startTime || "";
+// const endTime = rq.body.shopTime?.endTime || "";
 
     const files = rq.files as {
       banner?: Express.Multer.File[];
@@ -228,31 +239,42 @@ const endTime = rq.body.shopTime?.endTime || "";
       return;
     }
 
-      const banner = files?.banner?.[0]?.filename || "";
-
+      const banner = files?.banner?.[0]?.filename
+      ? `/uploads/${files.banner[0].filename}`
+      : existShop.banner || ""; // જો કોઈ જૂનું બેનર ન હોય તો ખાલી સ્ટ્રિંગ
       // const banner = files?.banner?.[0]?.filename || "";
+
     // const profile =
     //   files?.profile?.[0]?.filename ||
     //   `https://ui-avatars.com/api/?name=${shopname}`;
+  //   const profileUrl = files?.profile?.[0]?.filename
+  // ? `/uploads/${files.profile[0].filename}`
+  // : `https://ui-avatars.com/api/?name=${shopname || existShop.shopname}`;
+
     const profileUrl = files?.profile?.[0]?.filename
-  ? `/uploads/${files.profile[0].filename}`
-  : `https://ui-avatars.com/api/?name=${shopname || existShop.shopname}`;
+      ? `/uploads/${files.profile[0].filename}`
+      : existShop.profile || `https://ui-avatars.com/api/?name=${shopname || existShop.shopname}`;
 // const profileUrl =
 //   files?.profile?.[0]?.filename
 //     ? `/uploads/${files.profile[0].filename}`
 //     : existShop.profile || `https://ui-avatars.com/api/?name=${shopname}`;
 
-    console.log(rq.body);
+    // console.log(rq.body);
+     console.log("Request Body:", rq.body);
+    console.log("Request Files:", files);
+    console.log("Calculated Banner Path:", banner);
+    console.log("Calculated Profile Path:", profileUrl);
     
     const updatedData = {
-      vepariname:vepariname,
+     vepariname: vepariname || existShop.vepariname, 
       shopname:shopname || existShop.shopname,
       description:description || existShop.description,
       category:category || existShop.category,
       contact:contact || existShop.contact,
      profile:profileUrl,
       // banner: banner ? `/uploads/${banner}` : "",
-      banner: banner ? `/uploads/${banner}` : existShop.banner || "", 
+      // banner: banner ? `/uploads/${banner}` : existShop.banner || "", 
+      banner: banner || existShop.banner, 
       address: {
         country:country || existShop.address?.country||"india",
         state:state || existShop.address?.state,

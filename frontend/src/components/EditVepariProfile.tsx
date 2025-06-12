@@ -42,7 +42,7 @@ const EditVepariProfile = () => {
     shopname: "",
     description: "",
     address: {
-      country: "",
+       country: "india",
       state: "",
       city: "",
     },
@@ -54,28 +54,28 @@ const EditVepariProfile = () => {
     },
   });
 
-  // useEffect(() => {
-  //   if (vepari) {
-  //     setFetchVepariData({
-  //       banner: vepari.banner || null,
-  //       profile: vepari.profile || null,
-  //       vepariname: vepari.vepariname || "",
-  //       shopname: vepari.shopname || "",
-  //       description: vepari.description || "",
-  //       address: {
-  //         country: vepari?.address?.country || "",
-  //         state: vepari?.address?.state || "",
-  //         city: vepari?.address?.city || "",
-  //       },
-  //       category: vepari.category || "",
-  //       contact: vepari.contact || "",
-  //       shopTime: {
-  //         startTime: vepari.shopTime?.startTime || "",
-  //         endTime: vepari.shopTime?.endTime || "",
-  //       },
-  //     });
-  //   }
-  // }, [vepari]);
+  useEffect(() => {
+    if (vepari) {
+      setFetchVepariData({
+        banner: vepari.banner || null,
+        profile: vepari.profile || null,
+        vepariname: vepari.vepariname || "",
+        shopname: vepari.shopname || "",
+        description: vepari.description || "",
+        address: {
+          country: vepari?.address?.country || "india",
+          state: vepari?.address?.state || "",
+          city: vepari?.address?.city || "",
+        },
+        category: vepari.category || "",
+        contact: vepari.contact || "",
+        shopTime: {
+          startTime: vepari.shopTime?.startTime || "",
+          endTime: vepari.shopTime?.endTime || "",
+        },
+      });
+    }
+  }, [vepari]);
 
   // console.log("vepari id",vepari._id);
 
@@ -100,7 +100,7 @@ const EditVepariProfile = () => {
 
         const data = await response.json();
         setGetVepariProfileBanner(data);
-        console.log("Fetched banner/profile", data);
+        // console.log("Fetched banner/profile", data);
       } catch (error) {
         toast.error("internel server error");
         console.log("Error fetching vepari banner/profile", error);
@@ -110,38 +110,104 @@ const EditVepariProfile = () => {
     getVepariBannerProfile();
   }, [vepari]);
 
-  useEffect(() => {
-    const fetchVepariData = async () => {
-      try {
-        const token = localStorage.getItem("vg_token");
-        if (!token || !vepari?._id) {
-          return;
-        }
-        const response = await fetch(
-          `http://localhost:5000/api/get-vepari/${vepari._id}`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+  // useEffect(() => {
+  //   const fetchVepariData = async () => {
+  //     try {
+  //       const token = localStorage.getItem("vg_token");
+  //       if (!token || !vepari?._id) {
+  //         return;
+  //       }
+  //       const response = await fetch(
+  //         `http://localhost:5000/api/get-vepari/${vepari._id}`,
+  //         {
+  //           method: "GET",
+  //           headers: {
+  //             "Content-Type": "application/json",
+  //             Authorization: `Bearer ${token}`,
+  //           },
+  //         }
+  //       );
 
-        const data = await response.json();
-        if (response.ok) {
-          toast.success(data.message);
-          setFetchVepariData(data?.getVepariData);
-          console.log("fetch vepari data data data", data?.getVepariData);
-        }
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    fetchVepariData();
-  }, []);
+  //       const data = await response.json();
+  //       if (response.ok) {
+  //         toast.success(data.message);
+  //         setFetchVepariData(data?.getVepariData);
+  //         // console.log("fetch vepari data data data", data?.getVepariData);
+  //       }
+  //     } catch (error) {
+  //       console.log(error);
+  //     }
+  //   };
+  //   fetchVepariData();
+  // }, []);
 
   const handleEditVepariProfile = async () => {
+    const formData = new FormData();
+     formData.append("vepariname", fetchVepariData.vepariname);
+    formData.append("shopname", fetchVepariData.shopname);
+    formData.append("description", fetchVepariData.description);
+    formData.append("category", fetchVepariData.category);
+    formData.append("contact", fetchVepariData.contact);
+    
+    // Add address fields
+    formData.append("country", fetchVepariData.address.country);
+    formData.append("state", fetchVepariData.address.state);
+    formData.append("city", fetchVepariData.address.city);
+    
+    // Add shop time fields
+    formData.append("startTime", fetchVepariData.shopTime.startTime);
+    formData.append("endTime", fetchVepariData.shopTime.endTime);
+
+        if (fetchVepariData.banner instanceof File) {
+      formData.append("banner", fetchVepariData.banner);
+    }
+    if (fetchVepariData.profile instanceof File) {
+      formData.append("profile", fetchVepariData.profile);
+    }
+      // if (fetchVepariData.banner) {
+      //     formData.append("banner", fetchVepariData.banner);
+      //   }
+      //   if (fetchVepariData.profile) {
+      //     formData.append("profile", fetchVepariData.profile);
+      //   }
+        // Basic validation
+        if (!fetchVepariData.shopname.trim()) {
+          toast.error("Shop name is required");
+          return;
+        }
+    // // Handle image uploads
+    // if (fetchVepariData.banner instanceof File) {
+    //   formData.append("banner", fetchVepariData.banner);
+    // }
+    // if (fetchVepariData.profile instanceof File) {
+    //   formData.append("profile", fetchVepariData.profile);
+    // }
+
+    // // Add basic fields
+    // formData.append("vepariname", fetchVepariData.vepariname);
+    // formData.append("shopname", fetchVepariData.shopname);
+    // formData.append("description", fetchVepariData.description);
+    // formData.append("category", fetchVepariData.category);
+    // formData.append("contact", fetchVepariData.contact);
+
+    // Add address as a nested JSON object
+    // formData.append(
+    //   "address",
+    //   JSON.stringify({
+    //     country: fetchVepariData.address.country,
+    //     state: fetchVepariData.address.state,
+    //     city: fetchVepariData.address.city,
+    //   })
+    // );
+
+    // // Add shopTime as a nested JSON object
+    // formData.append(
+    //   "shopTime",
+    //   JSON.stringify({
+    //     startTime: fetchVepariData.shopTime.startTime,
+    //     endTime: fetchVepariData.shopTime.endTime,
+    //   })
+    // );
     setIsLoading(true);
     try {
       const token = localStorage.getItem("vg_token");
@@ -155,65 +221,34 @@ const EditVepariProfile = () => {
         toast.error("Vepari name and shop name are required");
         return;
       }
-      console.log(fetchVepariData);
+      // console.log(fetchVepariData);
 
-      const formData = new FormData();
-
-      // Add basic fields
-      formData.append("vepariname", fetchVepariData.vepariname);
-      formData.append("shopname", fetchVepariData.shopname);
-      formData.append("description", fetchVepariData.description);
-      formData.append("category", fetchVepariData.category);
-      formData.append("contact", fetchVepariData.contact);
-
-      // Add address as a nested JSON object
-      formData.append(
-        "address",
-        JSON.stringify({
-          country: fetchVepariData.address.country,
-          state: fetchVepariData.address.state,
-          city: fetchVepariData.address.city,
-        })
-      );
-
-      // Add shopTime as a nested JSON object
-      formData.append(
-        "shopTime",
-        JSON.stringify({
-          startTime: fetchVepariData.shopTime.startTime,
-          endTime: fetchVepariData.shopTime.endTime,
-        })
-      );
-
-      // Handle image uploads
-      if (fetchVepariData.banner instanceof File) {
-        formData.append("banner", fetchVepariData.banner);
-      }
-      if (fetchVepariData.profile instanceof File) {
-        formData.append("profile", fetchVepariData.profile);
-      }
 
       // const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-      const response = await fetch(
-        `http://localhost:5000/api/shop-profile-update/${vepari._id}`,
+      const response = await fetch(`http://localhost:5000/api/shop-profile-update/${vepari._id}`,
         {
           method: "PUT",
           headers: {
-            "Content-Type": "application/json", // ✅ Needed for JSON body
+            // "Content-Type": "application/json", // ✅ Needed for JSON body
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify(fetchVepariData),
-          // body: formData,
+          // body: JSON.stringify(fetchVepariData),
+          body:formData
+          
+          // body:JSON.stringify(formData),
         }
       );
+      
       const data = await response.json();
-
+      
       if (response.ok) {
-        // dispatch(setGetVepari({ vepari: data.updatedShop }));
-        console.log(data.updatedShop);
-
         toast.success(data.message || "Profile updated successfully");
-        // router.push("/admin-vepari/profile");
+        console.log("formdata", formData);
+        // dispatch(setGetVepari({ vepari: data.updatedShop }));
+        router.push("/admin-vepari/profile");
+        console.log("updatedShop", data.updatedShop);
+        console.log("updatedShop data", data);
+
       } else {
         toast.error(data.message || "Failed to update profile");
       }
@@ -225,7 +260,7 @@ const EditVepariProfile = () => {
     }
   };
 
-  console.log("fetchVepariData", fetchVepariData);
+  // console.log("fetchVepariData", fetchVepariData);
 
   // style ..........................
 
@@ -242,12 +277,12 @@ const EditVepariProfile = () => {
             accept="image/*"
             id="banner"
             className="border p-3 rounded-md"
-            onChange={(e) =>{
+            onChange={(e) => {
               console.log("changing banner to", e.target.value);
-              setFetchVepariData({
-                ...fetchVepariData,
+              setFetchVepariData((prev) => ({
+                ...prev,
                 banner: e.target.files?.[0] || null,
-              })
+              }));
             }}
           />
         </div>
@@ -280,12 +315,12 @@ const EditVepariProfile = () => {
             id="profile"
             accept="image/*"
             className="border p-3 rounded-md"
-            onChange={(e) =>{
-              console.log("changing profile to", e.target.value);
-              setFetchVepariData({
-                ...fetchVepariData,
+            onChange={(e) => {
+              console.log("changing banner to", e.target.value);
+              setFetchVepariData((prev) => ({
+                ...prev,
                 profile: e.target.files?.[0] || null,
-              })
+              }));
             }}
           />
         </div>
@@ -317,19 +352,19 @@ const EditVepariProfile = () => {
             id="vepariname"
             placeholder="Enter vepari name"
             className={` p-3 rounded-md ${border_color}`}
-            // onChange={(e) =>
-            //   setFetchVepariData((prev) => ({
-            //     ...prev,
-            //     vepariname: e.target.value,
-            //   }))
-            // }
-            onChange={(e) =>{
-              console.log("changing vepari to", e.target.value);
-              setFetchVepariData({
-                ...fetchVepariData,
+            onChange={(e) =>
+              setFetchVepariData((prev) => ({
+                ...prev,
                 vepariname: e.target.value,
-              })
-            }}
+              }))
+            }
+            // onChange={(e) => {
+            //   console.log("changing vepari to", e.target.value);
+            //   setFetchVepariData({
+            //     ...fetchVepariData,
+            //     vepariname: e.target.value,
+            //   });
+            // }}
             value={fetchVepariData.vepariname}
           />
         </div>
@@ -341,13 +376,19 @@ const EditVepariProfile = () => {
             id="shopname"
             placeholder="Enter Shopname"
             className={`${border_color} p-3 rounded-md`}
-            onChange={(e) =>{
-              console.log("changing shopname to", e.target.value);
-              setFetchVepariData({
-                ...fetchVepariData,
+            // onChange={(e) => {
+            //   console.log("changing shopname to", e.target.value);
+            //   setFetchVepariData({
+            //     ...fetchVepariData,
+            //     shopname: e.target.value,
+            //   });
+            // }}
+            onChange={(e) =>
+              setFetchVepariData((prev) => ({
+                ...prev,
                 shopname: e.target.value,
-              })
-            }}
+              }))
+            }
             value={fetchVepariData.shopname}
           />
         </div>
@@ -361,13 +402,19 @@ const EditVepariProfile = () => {
             cols={70}
             rows={10}
             className={`${border_color} rounded-md resize-none p-2 `}
-            onChange={(e) =>{
-              console.log("changing description to", e.target.value);
-              setFetchVepariData({
-                ...fetchVepariData,
+            // onChange={(e) => {
+            //   console.log("changing description to", e.target.value);
+            //   setFetchVepariData({
+            //     ...fetchVepariData,
+            //     description: e.target.value,
+            //   });
+            // }}
+            onChange={(e) =>
+              setFetchVepariData((prev) => ({
+                ...prev,
                 description: e.target.value,
-              })
-            }}
+              }))
+            }
             value={fetchVepariData.description}
           ></textarea>
         </div>
@@ -381,12 +428,12 @@ const EditVepariProfile = () => {
               id="country"
               placeholder="Enter Country"
               className={`${border_color} w-full p-3 rounded-md`}
-              onChange={(e) =>{
+              onChange={(e) => {
                 console.log("changing shopname to", e.target.value);
                 setFetchVepariData((prev) => ({
                   ...prev,
                   address: { ...prev.address, country: e.target.value },
-                }))
+                }));
               }}
               value={fetchVepariData.address.country}
             />
@@ -399,12 +446,12 @@ const EditVepariProfile = () => {
               id="state"
               placeholder="Enter State"
               className={`${border_color} w-full p-3 rounded-md`}
-              onChange={(e) =>{
+              onChange={(e) => {
                 console.log("changing state to", e.target.value);
                 setFetchVepariData((prev) => ({
                   ...prev,
                   address: { ...prev.address, state: e.target.value },
-                }))
+                }));
               }}
               value={fetchVepariData.address.state}
             />
@@ -417,12 +464,12 @@ const EditVepariProfile = () => {
               id="city"
               placeholder="Enter City"
               className={`${border_color} w-full p-3 rounded-md`}
-              onChange={(e) =>{
+              onChange={(e) => {
                 console.log("changing shopname to", e.target.value);
                 setFetchVepariData((prev) => ({
                   ...prev,
-                  address: { ...prev.address,city: e.target.value },
-                }))
+                  address: { ...prev.address, city: e.target.value },
+                }));
               }}
               value={fetchVepariData.address.city}
             />
@@ -436,13 +483,19 @@ const EditVepariProfile = () => {
             id="category"
             placeholder="Enter Category"
             className={`${border_color} p-3 rounded-md`}
-            onChange={(e) =>{
-              console.log("changing shopname to", e.target.value);
-              setFetchVepariData({
-                ...fetchVepariData,
+            // onChange={(e) => {
+            //   console.log("changing shopname to", e.target.value);
+            //   setFetchVepariData({
+            //     ...fetchVepariData,
+            //     category: e.target.value,
+            //   });
+            // }}
+            onChange={(e) =>
+              setFetchVepariData((prev) => ({
+                ...prev,
                 category: e.target.value,
-              })
-            }}
+              }))
+            }
             value={fetchVepariData.category}
           />
         </div>
@@ -454,13 +507,19 @@ const EditVepariProfile = () => {
             id="contact"
             placeholder="Enter Contact"
             className={`${border_color} p-3 rounded-md`}
-            onChange={(e) =>{
-              console.log("changing shopname to", e.target.value);
-              setFetchVepariData({
-                ...fetchVepariData,
+            // onChange={(e) => {
+            //   console.log("changing shopname to", e.target.value);
+            //   setFetchVepariData({
+            //     ...fetchVepariData,
+            //     contact: e.target.value,
+            //   });
+            // }}
+            onChange={(e) =>
+              setFetchVepariData((prev) => ({
+                ...prev,
                 contact: e.target.value,
-              })
-            }}
+              }))
+            }
             value={fetchVepariData.contact}
           />
         </div>
@@ -474,12 +533,12 @@ const EditVepariProfile = () => {
               id="startTime"
               placeholder="Enter Shop Time"
               className={`${border_color} p-3 rounded-md`}
-              onChange={(e) =>{
+              onChange={(e) => {
                 console.log("changing shopname to", e.target.value);
                 setFetchVepariData((prev) => ({
                   ...prev,
                   shopTime: { ...prev.shopTime, startTime: e.target.value },
-                }))
+                }));
               }}
               value={fetchVepariData.shopTime.startTime}
             />
@@ -492,12 +551,12 @@ const EditVepariProfile = () => {
               id="endTime"
               placeholder="Enter Shop Time"
               className={`${border_color} p-3 rounded-md`}
-              onChange={(e) =>{
+              onChange={(e) => {
                 console.log("changing shopname to", e.target.value);
                 setFetchVepariData((prev) => ({
                   ...prev,
                   shopTime: { ...prev.shopTime, endTime: e.target.value },
-                }))
+                }));
               }}
               value={fetchVepariData.shopTime.endTime}
             />

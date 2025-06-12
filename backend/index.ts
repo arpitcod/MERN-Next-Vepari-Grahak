@@ -18,7 +18,7 @@ app.use("/uploads", express.static(path.resolve("uploads")));
 
 // Middleware (Order Matters!)
 app.use(express.json());
-// app.use(express.urlencoded({ extended: true })); // ✅ Parse URL-encoded data
+app.use(express.urlencoded({ extended: true })); // ✅ Parse URL-encoded data
 app.use(cookieParser()); // 🔥 Ensure this is before routes
 app.use(
     cors({

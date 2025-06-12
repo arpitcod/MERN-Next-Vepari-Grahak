@@ -88,7 +88,9 @@ const CreateShop = () => {
       const data = await response.json();
 
       if (response?.ok) {
-        router.push("/dashboard");
+        router.push("/admin-vepari/dashboard");
+        console.log(formData);
+        
         toast.success(data.message || "Shop created successfully");
         // disPatch()
         console.log(response);
