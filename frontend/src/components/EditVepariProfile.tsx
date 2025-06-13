@@ -25,7 +25,7 @@ type FetchVepariType = {
   };
 };
 
-const EditVepariProfile = () => {
+const EditVepariProfile = ({ setShowBox }) => {
   const router = useRouter();
   const getVepariData = useSelector(
     (state: RootState) => state?.getVepari?.getVepari
@@ -35,6 +35,34 @@ const EditVepariProfile = () => {
   const [getVepariProfileBanner, setGetVepariProfileBanner] = useState([]);
 
   const dispatch = useDispatch();
+  const categoryOptions = [
+    "Grocery",
+    "Electronics",
+    "Clothing",
+    "Stationery",
+    "Furniture",
+    "Hardware",
+    "Toys",
+    "Sports",
+    "Books",
+    "Medicines",
+    "Mobile & Accessories",
+    "Beauty & Personal Care",
+    "Home Decor",
+    "Footwear",
+    "Watches & Accessories",
+    "Kitchenware",
+    "Cleaning Supplies",
+    "Pet Supplies",
+    "Automobile",
+    "Baby Products",
+  ];
+
+  // const [searchCategory, setSearchCategory] = useState("");
+
+  // const filteredCategory = categoryOptions.filter((category) =>
+  //   category.toLowerCase().includes(searchCategory.toLowerCase())
+  // );
   const [fetchVepariData, setFetchVepariData] = useState<FetchVepariType>({
     banner: null,
     profile: null,
@@ -42,7 +70,7 @@ const EditVepariProfile = () => {
     shopname: "",
     description: "",
     address: {
-       country: "india",
+      country: "india",
       state: "",
       city: "",
     },
@@ -143,38 +171,38 @@ const EditVepariProfile = () => {
 
   const handleEditVepariProfile = async () => {
     const formData = new FormData();
-     formData.append("vepariname", fetchVepariData.vepariname);
+    formData.append("vepariname", fetchVepariData.vepariname);
     formData.append("shopname", fetchVepariData.shopname);
     formData.append("description", fetchVepariData.description);
     formData.append("category", fetchVepariData.category);
     formData.append("contact", fetchVepariData.contact);
-    
+
     // Add address fields
     formData.append("country", fetchVepariData.address.country);
     formData.append("state", fetchVepariData.address.state);
     formData.append("city", fetchVepariData.address.city);
-    
+
     // Add shop time fields
     formData.append("startTime", fetchVepariData.shopTime.startTime);
     formData.append("endTime", fetchVepariData.shopTime.endTime);
 
-        if (fetchVepariData.banner instanceof File) {
+    if (fetchVepariData.banner instanceof File) {
       formData.append("banner", fetchVepariData.banner);
     }
     if (fetchVepariData.profile instanceof File) {
       formData.append("profile", fetchVepariData.profile);
     }
-      // if (fetchVepariData.banner) {
-      //     formData.append("banner", fetchVepariData.banner);
-      //   }
-      //   if (fetchVepariData.profile) {
-      //     formData.append("profile", fetchVepariData.profile);
-      //   }
-        // Basic validation
-        if (!fetchVepariData.shopname.trim()) {
-          toast.error("Shop name is required");
-          return;
-        }
+    // if (fetchVepariData.banner) {
+    //     formData.append("banner", fetchVepariData.banner);
+    //   }
+    //   if (fetchVepariData.profile) {
+    //     formData.append("profile", fetchVepariData.profile);
+    //   }
+    // Basic validation
+    if (!fetchVepariData.shopname.trim()) {
+      toast.error("Shop name is required");
+      return;
+    }
     // // Handle image uploads
     // if (fetchVepariData.banner instanceof File) {
     //   formData.append("banner", fetchVepariData.banner);
@@ -223,9 +251,9 @@ const EditVepariProfile = () => {
       }
       // console.log(fetchVepariData);
 
-
       // const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-      const response = await fetch(`http://localhost:5000/api/shop-profile-update/${vepari._id}`,
+      const response = await fetch(
+        `http://localhost:5000/api/shop-profile-update/${vepari._id}`,
         {
           method: "PUT",
           headers: {
@@ -233,22 +261,22 @@ const EditVepariProfile = () => {
             Authorization: `Bearer ${token}`,
           },
           // body: JSON.stringify(fetchVepariData),
-          body:formData
-          
+          body: formData,
+
           // body:JSON.stringify(formData),
         }
       );
-      
+
       const data = await response.json();
-      
+      setIsLoading(true);
       if (response.ok) {
+        dispatch(setGetVepari({ vepari: data.updatedShop }));
         toast.success(data.message || "Profile updated successfully");
+        setShowBox(false);
         console.log("formdata", formData);
-        // dispatch(setGetVepari({ vepari: data.updatedShop }));
         router.push("/admin-vepari/profile");
         console.log("updatedShop", data.updatedShop);
         console.log("updatedShop data", data);
-
       } else {
         toast.error(data.message || "Failed to update profile");
       }
@@ -260,6 +288,9 @@ const EditVepariProfile = () => {
     }
   };
 
+  // useEffect(()=>{
+  //   handleEditVepariProfile()
+  // },[])
   // console.log("fetchVepariData", fetchVepariData);
 
   // style ..........................
@@ -267,8 +298,8 @@ const EditVepariProfile = () => {
   const border_color = "border border-indigo-600";
 
   return (
-    <div>
-      <div className="flex flex-col gap-3 h-full overflow-auto p-2">
+    <div className="">
+      <div className="flex  flex-col gap-3 h-[500px] sm:h-full overflow-auto sm:p-2">
         <div className="flex flex-col">
           <label className="">Banner</label>
           <input
@@ -295,13 +326,13 @@ const EditVepariProfile = () => {
               <img
                 src={getVepariProfileBanner?.bannerUrl}
                 alt={"banner"}
-                className="w-[50%]"
+                className="w-[600px] h-[150px] "
               />
             ) : fetchVepariData.banner instanceof File ? (
               <img
                 src={URL.createObjectURL(fetchVepariData?.banner)}
                 alt="banner preview"
-                className="w-[50%]"
+                className="w-[500px] h-[200px] border"
               />
             ) : null}
           </div>
@@ -477,7 +508,50 @@ const EditVepariProfile = () => {
         </div>
         <div className="flex flex-col">
           <label>Category</label>
-          <input
+          {/* <input
+            type="text"
+            name="search"
+            id="search"
+            className={"border"}
+            placeholder="search category..."
+            value={searchCategory}
+            onChange={(e) => setSearchCategory(e.target.value)}
+          /> */}
+          <select
+            name="category"
+            id="category"
+            className={`${border_color} p-3 rounded-md`}
+            onChange={(e) =>
+              setFetchVepariData((prev) => ({
+                ...prev,
+                category: e.target.value,
+              }))
+            }
+            value={fetchVepariData.category}
+          >
+            {/* placeholder option */}
+            <option value="" className="">
+              Select category
+            </option>
+
+            {
+              categoryOptions.map((category) =>(
+                <option value={category} key={category} className="capitalize">
+                  {category}
+                </option>
+              ))
+            }
+            {/* {filteredCategory.length > 0 ? (
+              filteredCategory.map((category) => (
+                <option value={category} key={category} className="capitalize">
+                  {category}
+                </option>
+              ))
+            ) : (
+              <option disabled>No match found</option>
+            )} */}
+          </select>
+          {/* <input
             type="text"
             name="category"
             id="category"
@@ -490,14 +564,7 @@ const EditVepariProfile = () => {
             //     category: e.target.value,
             //   });
             // }}
-            onChange={(e) =>
-              setFetchVepariData((prev) => ({
-                ...prev,
-                category: e.target.value,
-              }))
-            }
-            value={fetchVepariData.category}
-          />
+          /> */}
         </div>
         <div className="flex flex-col">
           <label>Contact</label>

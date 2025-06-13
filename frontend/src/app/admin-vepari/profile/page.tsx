@@ -398,7 +398,7 @@ const Profile = () => {
       </div>
 
       {showBox && (
-        <div className="fixed inset-0 bg-[rgba(0,0,0,0.7)] flex justify-center items-center z-50">
+        <div className="fixed inset-0 bg-[rgba(0,0,0,0.7)] flex justify-center items-center z-50 ">
           <div className="bg-white p-5  rounded-md shadow-lg w-96 relative sm:h-[600px] sm:w-[900px] overflow-auto">
             <button
               onClick={() => setShowBox(false)}
@@ -410,9 +410,12 @@ const Profile = () => {
               Edit Profile
             </h2>
 
-                <EditVepariProfile 
-                   vepariID={fetchVepariData.id}
-                />
+                <div className="">
+                    <EditVepariProfile 
+                      setShowBox={setShowBox}
+                    />
+
+                </div>
 
           </div>
         </div>

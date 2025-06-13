@@ -46,6 +46,30 @@ const CreateShop = () => {
     },
   });
 
+  //category list 
+   const categoryOptions = [
+    "Grocery",
+    "Electronics",
+    "Clothing",
+    "Stationery",
+    "Furniture",
+    "Hardware",
+    "Toys",
+    "Sports",
+    "Books",
+    "Medicines",
+    "Mobile & Accessories",
+    "Beauty & Personal Care",
+    "Home Decor",
+    "Footwear",
+    "Watches & Accessories",
+    "Kitchenware",
+    "Cleaning Supplies",
+    "Pet Supplies",
+    "Automobile",
+    "Baby Products",
+  ];
+
   // dispatch
   // const disPatch = useDispatch()
   const handleCreateShop = async () => {
@@ -263,7 +287,7 @@ const CreateShop = () => {
       </div>
       <div className="flex flex-col">
         <label>Category</label>
-        <input
+        {/* <input
           type="text"
           name="category"
           id="category"
@@ -273,7 +297,27 @@ const CreateShop = () => {
             setShopData({ ...shopData, category: e.target.value })
           }
           value={shopData.category}
-        />
+        /> */}
+         <select
+          name="category"
+          id="category"
+           className={` p-3 rounded-md border`}
+            onChange={(e) =>
+              setShopData((prev) => ({
+                ...prev,
+                category: e.target.value,
+              }))
+            }
+            value={shopData.category}
+          >
+             {/* placeholder option */}
+               <option value="" className="border">Select category</option>
+               {
+                  categoryOptions.map((category) =>(
+                    <option value={category} key={category} className="text-black">{category}</option>
+                  ))
+               }
+          </select>
       </div>
       <div className="flex flex-col">
         <label>Contact</label>

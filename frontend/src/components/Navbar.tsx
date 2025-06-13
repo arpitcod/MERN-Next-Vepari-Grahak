@@ -148,8 +148,9 @@ const Navbar = () => {
 
   
 
+  const border_bg_text_color = " hover:bg-indigo-500 hover:text-white border border-indigo-500 transition-all"
   return (
-    <div className="px-2 flex flex-col sm:justify-between sm:flex-row items-center py-3 bg-white shadow-md gap-3">
+    <div className="px-2 flex flex-col sm:justify-between sm:flex-row items-center py-3 bg-white shadow-md gap-3 text-in">
     {/* <div className="px-2 grid grid-cols-5 items-center py-2 bg-white shadow-md "> */}
       <div className="">
         <p className="text-2xl cursor-pointer text-indigo-900 ">
@@ -190,25 +191,25 @@ const Navbar = () => {
             <div className="border border-indigo-600 w-full absolute top-15 bg-white  text-gray-800 rounded-md p-1 shadow-xl">
               <Link
                 href="/user/user-profile"
-                className="border block my-1 text-center py-2 rounded-md bg-indigo-500 hover:bg-indigo-600  text-white transition-all"
+                className={`border block my-1 text-center py-2 rounded-md ${border_bg_text_color}`}
               >
                 Profile
               </Link>
               <Link
                 href="/user/my-orders"
-                className="border block my-1 text-center py-2 rounded-md bg-indigo-500 hover:bg-indigo-600  text-white transition-all"
+                className={`border block my-1 text-center py-2 rounded-md ${border_bg_text_color}`}
               >
                 My Orders
               </Link>
               <Link
                 href="/user/likes"
-                className="border block my-1 text-center py-2 rounded-md bg-indigo-500 hover:bg-indigo-600  text-white transition-all"
+                className={`border block my-1 text-center py-2 rounded-md ${border_bg_text_color}`}
               >
                 Likes
               </Link>
               <Link
                 href="/user/faqs"
-                className="border block my-1 text-center py-2 rounded-md bg-indigo-500 hover:bg-indigo-600  text-white transition-all"
+                className={`border block my-1 text-center py-2 rounded-md ${border_bg_text_color}`}
               >
                 Faqs
               </Link>
@@ -216,14 +217,14 @@ const Navbar = () => {
               {getVepariData?.vepari?.isAdmin === true ? (
                 <Link
                   href="/admin-vepari/profile"
-                  className="border block my-1 text-center py-2 rounded-md bg-indigo-500 hover:bg-indigo-600  text-white transition-all"
+                  className={`border block my-1 text-center py-2 rounded-md ${border_bg_text_color}`}
                 >
                   Vepari Studio
                 </Link>
               ) : (
                 <Link
                   href="/user/create-shop"
-                  className="border block my-1 text-center py-2 rounded-md bg-indigo-500 hover:bg-indigo-600  text-white transition-all"
+                  className={`border block my-1 text-center py-2 rounded-md ${border_bg_text_color}`}
                 >
                   Create Shop
                 </Link>
