@@ -7,6 +7,7 @@ import cors from "cors";
 import shopRoutes from "./routes/createShop"
 import faqRoutes from "./routes/faqRouter"
 import path from "path";
+import productRoutes from './routes/productRouter'
 // Load environment variables
 dotenv.config();
 
@@ -35,6 +36,7 @@ console.log(process.env.SERVER_LOCALHOST);
 app.use("/api", authRoutes);
 app.use("/api",shopRoutes)
 app.use("/api",faqRoutes)
+app.use("/api",productRoutes)
 app.get("/", (rq: Request, rs: Response) => {
     rs.send("Hare Krishna");
 });
