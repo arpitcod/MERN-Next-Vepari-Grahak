@@ -3,7 +3,7 @@ import { configureStore } from "@reduxjs/toolkit"
 import userReducer from "./UserSlice"
 // import getUserReducer from "./GetUserSlice"
 import getVepariReducer from "./GetVepariSlice"
-
+import vepariProductsReducer from "./VepariProductSlice"
 
 const store = configureStore({
 
@@ -11,6 +11,7 @@ const store = configureStore({
         user:userReducer,
         // getUser:getUserReducer,
         getVepari:getVepariReducer,
+        vepariProducts:vepariProductsReducer
         // vepari:vepariReducer 
 
     }

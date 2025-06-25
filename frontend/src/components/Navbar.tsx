@@ -134,6 +134,7 @@ const Navbar = () => {
   // get vepari data 
     const handleData = async () =>{
     const data =await fetchVepariData()
+    
     if (data) {
        dispatch(setGetVepari(data));
     }else{

@@ -1,14 +1,50 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
+import { RootState } from "../../../../redux/store";
+// import { setVepariProducts } from "../../../../redux/VepariProductSlice";
 
 const Page = () => {
+  type ProductsType = {
+    name: string;
+    brand: string;
+    price: string;
+    quantity: string;
+    category: string;
+    tags: string[]; // array of tag strings
+    description: string;
+    details: string;
+    mainImage: File | null; // single file
+    images: File[]; // array of multiple files
+  };
+
+  // dispatch 
+  // const dispatch = useDispatch()
+  // fetcch vepari data
+  const getVepariData = useSelector(
+    (state: RootState) => state?.getVepari?.getVepari
+  );
+  const vepari = getVepariData?.vepari;
+
+  useEffect(() => {
+    if (vepari?.category) {
+      setProductData((prev) => ({
+        ...prev,
+        category: vepari.category,
+      }));
+    }
+  }, [vepari]);
+
+  // loading
+  const [isLoading, setIsLoading] = useState(false);
+
   // images
   const [images, setImages] = useState<(File | null)[]>(Array(7).fill(null));
   const [previews, setPreviews] = useState<string[]>(Array(7).fill(""));
 
   // main image
-  const [mainImage, setMainImage] = useState<string | null>(null);
+  const [mainImage, setMainImage] = useState<File | null>(null);
   const [prevMainImage, setPrevMainImage] = useState<string>("");
 
   // tags
@@ -57,35 +93,34 @@ const Page = () => {
 
   // tags
   const handleTagKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-  const trimmedTag = inputTag.trim();
+    const trimmedTag = inputTag.trim();
 
-  if ((e.key === "Enter" || e.key === ",") && trimmedTag) {
-    e.preventDefault();
+    if ((e.key === "Enter" || e.key === ",") && trimmedTag) {
+      e.preventDefault();
 
-    if (tags.length >= 8) {
-      toast.error("Maximum 8 tags allowed");
-      return;
+      if (tags.length >= 8) {
+        toast.error("Maximum 8 tags allowed");
+        return;
+      }
+
+      // if (trimmedTag.length < 3) {
+      //   toast.error("Minimum 3 characters required");
+      //   return;
+      // }
+
+      // if (trimmedTag.length > 10) {
+      //   toast.error("Maximum 10 characters allowed");
+      //   return;
+      // }
+
+      if (!tags.includes(trimmedTag)) {
+        setTags([...tags, trimmedTag]);
+        setInputTag("");
+      } else {
+        toast.error("Tag already added");
+      }
     }
-
-    // if (trimmedTag.length < 3) {
-    //   toast.error("Minimum 3 characters required");
-    //   return;
-    // }
-
-    // if (trimmedTag.length > 10) {
-    //   toast.error("Maximum 10 characters allowed");
-    //   return;
-    // }
-
-    if (!tags.includes(trimmedTag)) {
-      setTags([...tags, trimmedTag]);
-      setInputTag("");
-    } else {
-      toast.error("Tag already added");
-    }
-  }
-};
-
+  };
 
   const handleRemoveTag = (index: number) => {
     const newTags = [...tags];
@@ -93,11 +128,103 @@ const Page = () => {
     setTags(newTags);
   };
 
+  // products data
 
-  const handleCreateProduct = () =>{
-    console.log({images,tags,mainImage});
-    
-  }
+  const [productData, setProductData] = useState<ProductsType>({
+    name: "",
+    brand: "",
+    price: "",
+    quantity: "",
+    category: "",
+    tags: [],
+    description: "",
+    details: "",
+    mainImage: null,
+    images: [],
+  });
+
+  const handleCreateProduct = async () => {
+    const formData = new FormData();
+
+    formData.append("name", productData.name);
+    formData.append("brand", productData.brand);
+    formData.append("price", String(productData.price));
+    formData.append("quantity", String(productData.quantity));
+    formData.append("category", productData.category);
+    formData.append("description", productData.description);
+    formData.append("details", productData.details);
+
+    tags.forEach((tag, index) => {
+      formData.append(`tags[${index}]`, tag);
+    });
+
+    if (mainImage) {
+      formData.append("mainImage", mainImage);
+    }
+
+    images.forEach((img) => {
+      if (img) {
+        formData.append(`images`, img);
+      }
+    });
+
+    try {
+      setIsLoading(true);
+      const token = localStorage.getItem("vg_token");
+      if (!token) return;
+      const response = await fetch(`http://localhost:5000/api/create-product`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Reset form fields except category
+        setProductData((prev) => ({
+          name: "",
+          brand: "",
+          price: "",
+          quantity: "",
+          category: prev.category, // keep category from vepari
+          tags: [],
+          description: "",
+          details: "",
+          mainImage: null,
+          images: [],
+        }));
+
+        // Reset main image preview
+        setMainImage(null);
+        setPrevMainImage("");
+
+        // Reset multiple images and previews
+        setImages(Array(7).fill(null));
+        setPreviews(Array(7).fill(""));
+
+        // Reset tags
+        setTags([]);
+        setInputTag("");
+
+        // dispatch(setVepariProducts(data))
+
+
+        toast.success(data.message || "New Product Created");
+        console.log("data", data);
+        console.log("response", response);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error("something went wrong pls try again");
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const input_style =
     "border border-indigo-300 p-3 rounded-md my-2 focus:outline-none focus:ring-2 focus:ring-indigo-400 transition";
@@ -118,6 +245,13 @@ const Page = () => {
           id="name"
           className={input_style}
           placeholder="Product Name"
+          value={productData.name}
+          onChange={(e) =>
+            setProductData({
+              ...productData,
+              name: e.target.value,
+            })
+          }
         />
       </div>
 
@@ -132,6 +266,13 @@ const Page = () => {
           id="brand"
           className={input_style}
           placeholder="Brand"
+          value={productData.brand}
+          onChange={(e) =>
+            setProductData({
+              ...productData,
+              brand: e.target.value,
+            })
+          }
         />
       </div>
 
@@ -141,11 +282,18 @@ const Page = () => {
           Price
         </label>
         <input
-          type="text"
+          type="number"
           name="price"
           id="price"
           className={input_style}
           placeholder="Price"
+          value={productData.price}
+          onChange={(e) =>
+            setProductData({
+              ...productData,
+              price: e.target.value,
+            })
+          }
         />
       </div>
 
@@ -155,11 +303,18 @@ const Page = () => {
           Quantity
         </label>
         <input
-          type="text"
+          type="number"
           name="quantity"
           id="quantity"
           className={input_style}
           placeholder="Quantity"
+          value={productData.quantity}
+          onChange={(e) =>
+            setProductData({
+              ...productData,
+              quantity: e.target.value,
+            })
+          }
         />
       </div>
 
@@ -174,6 +329,11 @@ const Page = () => {
           id="category"
           className={input_style}
           placeholder="Category"
+          value={productData.category}
+          onChange={(e) =>
+            setProductData({ ...productData, category: e.target.value })
+          }
+          disabled
         />
       </div>
 
@@ -181,7 +341,7 @@ const Page = () => {
       {/* Tags Input */}
       <div className="flex flex-col">
         <label htmlFor="tags" className="text-sm font-medium text-gray-700">
-          Tags
+          Tags <span className="text-red-500">Limit 8 Tags</span>
         </label>
         <div className="flex flex-wrap gap-2 border border-indigo-300 p-2 rounded-md focus-within:ring-2 ring-indigo-400">
           {tags.map((tag, index) => (
@@ -224,6 +384,10 @@ const Page = () => {
           id="description"
           className={input_style}
           placeholder="Description"
+          value={productData.description}
+          onChange={(e) =>
+            setProductData({ ...productData, description: e.target.value })
+          }
         />
       </div>
 
@@ -236,7 +400,7 @@ const Page = () => {
           Main Image
         </label>
         <div className=" flex justify-center">
-          <div className="relative border-2 border-dashed border-gray-300 p-2 rounded-md w-[300px] h-[300px] flex flex-col justify-center items-center bg-gray-50 hover:border-indigo-400">
+          <div className="relative border-2 border-dashed border-gray-300 p-2 rounded-md w-[250px] h-[150px] flex flex-col justify-center items-center bg-gray-50 hover:border-indigo-400">
             <input
               type="file"
               name="mainImage"
@@ -262,8 +426,8 @@ const Page = () => {
                   className="object-cover w-full h-full rounded flex items-center"
                 />
               ) : (
-                <span className="text-md text-gray-500 text-center">
-                  Upload
+                <span className="text-sm text-gray-500 text-center">
+                  Upload (250px x 150px)
                 </span>
               )}
             </label>
@@ -341,6 +505,10 @@ const Page = () => {
           id="details"
           placeholder="Details..."
           className="w-full h-48 border border-indigo-300 rounded-md  p-4 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+          value={productData.details}
+          onChange={(e) =>
+            setProductData({ ...productData, details: e.target.value })
+          }
         ></textarea>
       </div>
 
@@ -348,8 +516,9 @@ const Page = () => {
       <button
         onClick={handleCreateProduct}
         className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-md text-lg font-medium transition"
+        disabled={isLoading}
       >
-        Create Product
+        {isLoading ? "Loading..." : "Create Product"}
       </button>
     </div>
   );

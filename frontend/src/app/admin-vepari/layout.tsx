@@ -23,6 +23,10 @@ const layout = ({children}:LayoutProps) => {
               link:"/admin-vepari/create-product"
             },
             {
+              name:"My Products",
+              link:"/admin-vepari/my-products"
+            },
+            {
               name:"Dashboard",
               link:"/admin-vepari/dashboard"
             },
