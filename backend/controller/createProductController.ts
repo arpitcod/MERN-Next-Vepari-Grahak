@@ -98,7 +98,7 @@ export const createProductController = async (
 
     await newProduct.save();
     await createShopModel.findByIdAndUpdate(vepariId, {
-      $push: { products:newProduct._id },
+      $push: { products: newProduct._id },
     });
 
     rs.status(201).json({
@@ -158,11 +158,14 @@ export const fetchAllProducts = async (rq: Request, rs: Response) => {
 
 // fetch products with vepari id usng
 
-export const getSingleVepariProducts = async (rq: AdminRequestType, rs: Response) => {
+export const getSingleVepariProducts = async (
+  rq: AdminRequestType,
+  rs: Response
+) => {
   try {
     // const { id } = rq.params;
-     const vepariId = rq.vepari_shop;
-    const products = await productModel.find({vepariId});
+    const vepariId = rq.vepari_shop;
+    const products = await productModel.find({ vepariId });
 
     if (!products || products.length === 0) {
       rs.status(404).json({
@@ -174,23 +177,184 @@ export const getSingleVepariProducts = async (rq: AdminRequestType, rs: Response
 
     const baseUrl = `${rq.protocol}://${rq.get("host")}/uploads/products/`;
 
-    const productsWithUrls = products.map((product) =>({
+    const productsWithUrls = products.map((product) => ({
       ...product.toObject(),
-      mainImage:baseUrl + product.mainImage,
-      images:product.images.map((image:string) =>baseUrl + image)
-    }))
+      mainImage: baseUrl + product.mainImage,
+      images: product.images.map((image: string) => baseUrl + image),
+    }));
+    
     rs.status(200).json({
       totalProducts: products.length,
       success: true,
       message: "vepari products fetched successfully",
-      products:productsWithUrls
+      products: productsWithUrls,
     });
-  } catch  (error){
-      rs.status(500).json({
-        success:false,
-        message:"something went wrong",
-        error
-      })
-      return
+  } catch (error) {
+    rs.status(500).json({
+      success: false,
+      message: "something went wrong",
+      error,
+    });
+    return;
   }
 };
+
+// update vepari product
+
+export const updateVepariProductController = async (
+  rq: AdminRequestType,
+  rs: Response
+) => {
+  try {
+    const { id } = rq.params;
+    if (!id) {
+      rs.status(404).json({
+        success:false,
+        message:"id not found",
+
+      })
+      return
+      
+    }
+    const vepariId = rq.vepari_shop;
+    if (!vepariId) {
+      rs.status(404).json({
+        success: false,
+        message: "vepari id not found",
+      });
+      return;
+    }
+    const {
+      name,
+      brand,
+      price,
+      quantity,
+      category,
+      tags,
+      description,
+      details,
+    } = rq.body;
+
+    const files = rq.files as {
+      mainImage: Express.Multer.File[];
+      images: Express.Multer.File[];
+    };
+
+    const mainImage = files?.mainImage?.[0]?.filename || "";
+    const images = files?.images?.map((file) => file.filename) || [];
+    // Validation
+    // if (
+    //   !name ||
+    //   !brand ||
+    //   !price ||
+    //   !quantity ||
+    //   !category ||
+    //   !images ||
+    //   images.length === 0 ||
+    //   !tags ||
+    //   !description ||
+    //   !details ||
+    //   !mainImage
+    // ) {
+    //   rs.status(400).json({
+    //     success: false,
+    //     message: "fields are required.",
+    //   });
+    //   return;
+    // }
+
+    const existVepariProducts = await productModel.findById(id);
+    if (!existVepariProducts) {
+      rs.status(404).json({
+        success: false,
+        message: "product not found",
+      });
+      return;
+    }
+
+    const updatedData = {
+      name: name || existVepariProducts.name,
+      brand: brand || existVepariProducts.brand,
+      price: price || existVepariProducts.price,
+      quantity: quantity || existVepariProducts.quantity,
+      category: category || existVepariProducts.category,
+      images: images.length > 0 ? images : existVepariProducts.images,
+      tags: tags || existVepariProducts.tags,
+      description: description || existVepariProducts.description,
+      details: details || existVepariProducts.details,
+      mainImage: mainImage || existVepariProducts.mainImage,
+    };
+
+    const updatedProduct = await productModel.findByIdAndUpdate(
+      id,
+      updatedData,
+      { new: true }
+    );
+    await createShopModel.findByIdAndUpdate(vepariId,{$addToSet:{products:updatedProduct?._id}});
+
+    rs.status(200).json({
+      success: true,
+      message: "product updated successfully",
+      updatedProduct: updatedProduct,
+    });
+  } catch (error) {
+    console.log(error);
+    rs.status(500).json({
+      success: false,
+      message: "something went wrong",
+      error,
+    });
+  }
+};
+
+// get single product 
+
+export const  getSingleProductController = async (rq:Request,rs:Response) =>{
+  try {
+    
+    const {id} = rq.params;
+    if (!id) {
+      rs.status(400).json({
+        success:false,
+        message:"id not found"
+      })
+      return
+    }
+
+
+    const singleProduct = await productModel.findById(id)
+
+    if (!singleProduct ) {
+      rs.status(404).json({
+        success:false,
+        message:"product not found"
+      })
+      return
+    }
+
+    const baseUrl = `${rq.protocol}://${rq.get("host")}/uploads/products/`
+      console.log({...singleProduct.toObject()});
+      
+    const productWithUrls = {
+      ...singleProduct.toObject(),
+      mainImage: baseUrl + singleProduct.mainImage,
+      images: singleProduct.images.map((image:string) =>baseUrl + image)
+    }
+
+
+    rs.status(200).json({
+      success:true,
+      message:"product fetch successfully",
+      singleProduct:productWithUrls
+    })
+
+  } catch (error) {
+    console.log(error);
+    rs.status(500).json({
+      success:false,
+      message:"something went wrong ",
+      error
+    })
+    
+  }
+}

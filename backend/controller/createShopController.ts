@@ -318,7 +318,7 @@ export const getVepariProfile = async (rq: AuthRequest, rs: Response) => {
       return;
     }
 
-    const vepari = await createShopModel.findOne({ user: userId }).populate("user");
+    const vepari = await createShopModel.findOne({ user: userId }).populate("user products");
 
     if (!vepari) {
       rs.status(404).json({
@@ -328,10 +328,25 @@ export const getVepariProfile = async (rq: AuthRequest, rs: Response) => {
       return;
     }
 
+    const baseUrl = `${rq.protocol}://${rq.get("host")}/uploads/produtcs/`
+      console.log({...vepari.toObject()});
+      
+    const productsWithUrls = vepari.products.map((product:any) =>({
+          ...product.toObject(),
+          mainImage: product.mainImage ? baseUrl + product.mainImage : "",
+          images: product.images ? product.images.map((image:string) => baseUrl + image) : []
+    }))
+
+    const vepariWithProductUrls ={
+      ...vepari.toObject(),
+      products:productsWithUrls
+    }
+    
+
     rs.status(200).json({
       success: true,
       message: "vepari profile fetched",
-      vepari,
+      vepari:vepariWithProductUrls,
     });
     return;
   } catch (error) {

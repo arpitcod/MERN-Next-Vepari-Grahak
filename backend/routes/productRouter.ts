@@ -1,5 +1,5 @@
 import express from "express"
-import { createProductController, fetchAllProducts, getSingleVepariProducts } from "../controller/createProductController"
+import { createProductController, fetchAllProducts, getSingleProductController, getSingleVepariProducts, updateVepariProductController } from "../controller/createProductController"
 import { adminMiddleware, userMiddleware } from "../middleware/authMiddleware"
 import { upload } from "../middleware/multerMiddleware"
 
@@ -12,7 +12,18 @@ router.post("/create-product",userMiddleware,adminMiddleware,upload.fields([{nam
 router.get("/fetch-all-products",userMiddleware,adminMiddleware,fetchAllProducts)
 
 
-//get single vepari produtcs with id http://localhost:5000/api/get-vepari-produtcs/685685203a7b0a6116731831
+//get single vepari produtcs with vepari id http://localhost:5000/api/get-vepari-produtcs/685685203a7b0a6116731831
  router.get("/get-vepari-produtcs/:id",userMiddleware,adminMiddleware,getSingleVepariProducts)
 
+
+ //get single product http://localhost:5000/api/get-single-product/685685203a7b0a6116731831
+ router.get("/get-single-product/:id",userMiddleware,adminMiddleware,getSingleProductController)
+
+
+ //update vepari product http://localhost:5000/api/update-vepari-product/685a71281ff1739b8e1ec511
+ router.put("/update-vepari-product/:id",userMiddleware,adminMiddleware,upload.fields([
+   { name: "mainImage", maxCount: 1 },
+   { name: "images", maxCount: 7 },
+]),updateVepariProductController)
+ 
 export default router 

@@ -1,5 +1,7 @@
 "use client"
 
+import HomePage from "@/components/HomePage";
+
 
 
 // import useGetUser from "@/getData/useGetUser";
@@ -12,7 +14,7 @@ export default function Home() {
   //   useGetUser();
   return (
           <div className=" mx-2">
-            <h1>hare krishna</h1>
+              <HomePage />
           
           </div>
   );

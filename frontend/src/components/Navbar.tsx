@@ -159,7 +159,7 @@ const Navbar = () => {
         </p>
       </div>
 
-      <div className="border rounded-md flex items-center w-full sm:w-fit px-2">
+      <div className="border border-indigo-600 rounded-md flex items-center w-full sm:w-fit px-2">
         <FaSearch className="mx-2 text-lg" />
         <input
           type="text"
