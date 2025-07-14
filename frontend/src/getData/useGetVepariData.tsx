@@ -41,7 +41,7 @@
 
         if (data.success) {
           // dispatch(setGetVepari(data));
-          return data
+          return data.vepari
           console.log("from useget vepari",data);
           
         } else {

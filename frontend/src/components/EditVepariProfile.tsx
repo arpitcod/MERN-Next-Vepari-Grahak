@@ -6,7 +6,8 @@ import { toast } from "react-toastify";
 import { setGetVepari } from "../../redux/GetVepariSlice";
 import { useRouter } from "next/navigation";
 
-type FetchVepariType = {
+type VepariType = {
+  _id?:string;
   banner: File | string | null;
   profile: File | string | null;
   vepariname: string;
@@ -24,15 +25,21 @@ type FetchVepariType = {
     endTime: string;
   };
 };
+type VepariBannerProfileType = {
+  bannerUrl: string;
+  profileUrl: string;
+};
+type Props = {
+  setShowBox: React.Dispatch<React.SetStateAction<boolean>>;
+};
 
-const EditVepariProfile = ({ setShowBox }) => {
+const EditVepariProfile = ({ setShowBox }:Props) => {
   const router = useRouter();
-  const getVepariData = useSelector(
-    (state: RootState) => state?.getVepari?.getVepari
-  );
-  const vepari = getVepariData?.vepari;
+  const vepari = useSelector(
+    (state: RootState) => state?.getVepari?.getVepari as VepariType | null
+  );;
   const [isLoading, setIsLoading] = useState(false);
-  const [getVepariProfileBanner, setGetVepariProfileBanner] = useState([]);
+  const [getVepariProfileBanner, setGetVepariProfileBanner] = useState<VepariBannerProfileType | null>(null);
 
   const dispatch = useDispatch();
   const categoryOptions = [
@@ -63,7 +70,7 @@ const EditVepariProfile = ({ setShowBox }) => {
   // const filteredCategory = categoryOptions.filter((category) =>
   //   category.toLowerCase().includes(searchCategory.toLowerCase())
   // );
-  const [fetchVepariData, setFetchVepariData] = useState<FetchVepariType>({
+  const [fetchVepariData, setFetchVepariData] = useState<VepariType>({
     banner: null,
     profile: null,
     vepariname: "",
@@ -270,7 +277,7 @@ const EditVepariProfile = ({ setShowBox }) => {
       const data = await response.json();
       setIsLoading(true);
       if (response.ok) {
-        dispatch(setGetVepari({ vepari: data.updatedShop }));
+        dispatch(setGetVepari({ ...vepari,...data.updatedShop }));
         toast.success(data.message || "Profile updated successfully");
         setShowBox(false);
         console.log("formdata", formData);

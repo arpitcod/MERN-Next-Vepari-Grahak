@@ -1,12 +1,27 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { setVepariProducts } from "../../redux/VepariProductSlice";
 import { useRouter } from "next/navigation";
 import { setGetVepari } from "../../redux/GetVepariSlice";
+import { RootState } from "../../redux/store";
 
-type ProductFromAPI = {
+// type ProductFromAPI = {
+//   name: string;
+//   brand: string;
+//   price: string;
+//   quantity: string;
+//   category: string;
+//   tags: string[];
+//   description: string;
+//   details: string;
+//   mainImage: string; // URL from backend
+//   images: string[]; // URLs from backend
+// };
+
+type ProductsType = {
+  _id?: string; // keep optional only if it's actually optional
   name: string;
   brand: string;
   price: string;
@@ -15,34 +30,74 @@ type ProductFromAPI = {
   tags: string[];
   description: string;
   details: string;
-  mainImage: string;     // URL from backend
-  images: string[];     // URLs from backend
+  mainImage?: string;
+  images?: string[];
 };
 
-  type ProductsType = {
-  name: string;
-  brand: string;
-  price: string;
-  quantity: string;
-  category: string;
-  tags: string[];
+type VepariType = {
+  _id?:string;
+  banner: File | string | null;
+  profile: File | string | null;
+  vepariname: string;
+  shopname: string;
   description: string;
-  details: string;
+  address: {
+    country: string;
+    state: string;
+    city: string;
+  };
+  category: string;
+  contact: string;
+  shopTime: {
+    startTime: string;
+    endTime: string;
+  };
+  isAdmin:boolean;
+  isActive:boolean;
+  products:ProductsType[]
 };
+// type VepariType = {
+//   banner: File | string | null;
+//   profile: File | string | null;
+//   vepariname: string;
+//   shopname: string;
+//   description: string;
+//   address: {
+//     country: string;
+//     state: string;
+//     city: string;
+//   };
+//   category: string;
+//   contact: string;
+//   shopTime: {
+//     startTime: string;
+//     endTime: string;
+//   };
+// };
 
 const EditVepariProduct = ({
   productId,
-  setEditProductBox
+  setEditProductBox,
 }: {
   productId: string;
   setEditProductBox: (value: boolean) => void;
 }) => {
+  // const getVepariData = useSelector(
+  //   (state: RootState) => state.getVepari?.vepari
+  // );
+  const getVepariData = useSelector(
+    (state: RootState) => state?.getVepari?.getVepari as VepariType | null
+  );
+  // const getVepariData = useSelector(
+  //   (state: RootState) => state?.getVepari?.getVepari?.vepari
+  // );
+  console.log("get vepari data from edit product ", getVepariData);
 
   const [isLoading, setIsloading] = useState(false);
-  const dispatch = useDispatch()
-  const router = useRouter()
+  const dispatch = useDispatch();
+  const router = useRouter();
 
-  const [fetchProduct, setFetchProduct] = useState<ProductFromAPI | null>(null);
+  const [fetchProduct, setFetchProduct] = useState<ProductsType | null>(null);
   const [productData, setProductData] = useState<ProductsType>({
     name: "",
     brand: "",
@@ -52,7 +107,6 @@ const EditVepariProduct = ({
     tags: [],
     description: "",
     details: "",
-
   });
 
   //  const getVepariData = useSelector(
@@ -82,8 +136,6 @@ const EditVepariProduct = ({
   const [tags, setTags] = useState<string[]>([]);
   const [inputTag, setInputTag] = useState<string>("");
 
- 
-
   // get single product
 
   useEffect(() => {
@@ -105,7 +157,7 @@ const EditVepariProduct = ({
         );
 
         const data = await response.json();
-        if (response.ok && data.singleProduct) {
+        if (response.ok) {
           setFetchProduct(data.singleProduct);
           console.log("single product", data.singleProduct);
           console.log("single product", data);
@@ -124,39 +176,37 @@ const EditVepariProduct = ({
   useEffect(() => {
     if (fetchProduct) {
       setProductData({
-      name: fetchProduct.name || "",
-      brand: fetchProduct.brand || "",
-      price: fetchProduct.price || "",
-      quantity: fetchProduct.quantity || "",
-      category: fetchProduct.category || "",
-      description: fetchProduct.description || "",
-      details: fetchProduct.details || "",
-      tags: fetchProduct.tags || [],
-      // mainImage: fetchProduct.mainImage || null,    // we keep file null initially
-      // images: fetchProduct.images ||  [],         // initially empty
-    });
+        name: fetchProduct.name || "",
+        brand: fetchProduct.brand || "",
+        price: fetchProduct.price || "",
+        quantity: fetchProduct.quantity || "",
+        category: fetchProduct.category || "",
+        description: fetchProduct.description || "",
+        details: fetchProduct.details || "",
+        tags: fetchProduct.tags || [],
+        // mainImage: fetchProduct.mainImage || null,    // we keep file null initially
+        // images: fetchProduct.images ||  [],         // initially empty
+      });
 
-      setTags(fetchProduct.tags || [])
-      setPrevMainImage(  fetchProduct.mainImage || "")
-      setPreviews(fetchProduct.images || new Array(7).fill(""))
+      setTags(fetchProduct.tags || []);
+      setPrevMainImage(fetchProduct.mainImage || "");
+      setPreviews(fetchProduct.images || new Array(7).fill(""));
 
-       // fetchProduct.images should be array of image URLs
-    // if (fetchProduct.images && Array.isArray(fetchProduct.images)) {
-    //   // make sure always have 7 items
-    //   const previewsArray = [...fetchProduct.images];
-    //   while (previewsArray.length < 7) {
-    //     previewsArray.push("");
-    //   }
-    //   setPreviews(previewsArray);
-    // } else {
-    //   setPreviews(Array(7).fill(""));
-    // }
-
-
-  }
+      // fetchProduct.images should be array of image URLs
+      // if (fetchProduct.images && Array.isArray(fetchProduct.images)) {
+      //   // make sure always have 7 items
+      //   const previewsArray = [...fetchProduct.images];
+      //   while (previewsArray.length < 7) {
+      //     previewsArray.push("");
+      //   }
+      //   setPreviews(previewsArray);
+      // } else {
+      //   setPreviews(Array(7).fill(""));
+      // }
+    }
   }, [fetchProduct]);
 
-   // images
+  // images
   const handleImageChange = (
     e: React.ChangeEvent<HTMLInputElement>,
     index: number
@@ -219,11 +269,10 @@ const EditVepariProduct = ({
     newTags.splice(index, 1);
     setTags(newTags);
   };
-  
-  
+
   // update product
-  const handleUpdateProduct = async () =>{
-    const formData = new FormData()
+  const handleUpdateProduct = async () => {
+    const formData = new FormData();
 
     formData.append("name", productData.name);
     formData.append("brand", productData.brand);
@@ -233,60 +282,108 @@ const EditVepariProduct = ({
     formData.append("description", productData.description);
     formData.append("details", productData.details);
 
-      // tags
-     tags.forEach((tag, index) => {
+    // tags
+    tags.forEach((tag, index) => {
       formData.append(`tags[${index}]`, tag);
     });
 
-    // main image 
+   // 🪄 ✅ add existing image URLs
+  previews.forEach((url) => {
+    // check that it's a real existing URL (not blob URL)
+    if (url && typeof url === "string" && !url.startsWith("blob:")) {
+      formData.append("existingImages", url);
+    }
+  });
+
+    // main image
     if (mainImage) {
       formData.append("mainImage", mainImage);
     }
 
-    // images 
+    // images
     images.forEach((img) => {
       if (img) {
         formData.append(`images`, img);
       }
     });
 
-    try {
-      setIsloading(true)
-      const token = localStorage.getItem("vg_token");
-      if (!token) return;
-
-      const response = await fetch(`http://localhost:5000/api/update-vepari-product/${productId}`,{
-        method:"PUT",
-        headers:{
-            Authorization: `Bearer ${token}`,
-
-        },
-        body:formData
-      })
-
-      const data = await response.json()
-
-      if (response.ok) {
-          toast.success(data.message)
-          dispatch(setVepariProducts({products:data.products}));
-          // dispatch(setGetVepari({ vepari: data.products }));
-          setEditProductBox(false)
-          router.push("/admin-vepari/my-products");
     
-          console.log("updated data",data);
-          
-
+    
+    setIsloading(true);
+    try {
+      const token = localStorage.getItem("vg_token");
+      if (!token) {
+        toast.error("Authentication required");
+        return;
       }
 
+      const response = await fetch(
+        `http://localhost:5000/api/update-vepari-product/${productId}`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        }
+      );
 
+      const data = await response.json();
+
+      if (response?.ok) {
+        toast.success(data.message);
+        console.log("updated data ", data);
+
+        if (!getVepariData) {
+          toast.warn("Vepari data  not available in Redux state.");
+          // console.warn("Vepari data or products not available in Redux state.");
+          router.push("/admin-vepari/my-products");
+          setEditProductBox(false);
+          return;
+        }
+        if (!getVepariData.products) {
+          toast.warn("products not available in Redux state.");
+          // console.warn("product data or products not available in Redux state.");
+          router.push("/admin-vepari/my-products");
+          setEditProductBox(false);
+          return;
+        }
+
+        // update redux vepari products
+        // In handleUpdateProduct function
+        const updatedVepariProducts = getVepariData?.products?.map(
+          (product: ProductsType) =>
+            product?._id === data?.updatedProduct?._id
+              ? data?.updatedProduct
+              : product
+        );
+        // const updatedVepari = {
+        //   ...getVepariData, // This assumes getVepariData is the 'vepari' object itself
+        //   products: updatedVepariProducts,
+        // };
+        // const updatedVepari = {
+        //   ...getVepariData,
+        //   products: getVepariData.products.map((product: ProductsType) =>
+        //     product._id === data.updatedProduct._id ? data.updatedProduct : product
+        //   ),
+        // };
+        // dispatch(setGetVepari(updatedVepari));
+        dispatch(
+          setGetVepari({ ...getVepariData, products: updatedVepariProducts })
+        );
+        console.log("get vepari data from updated product", getVepariData);
+        dispatch(setVepariProducts({ products: updatedVepariProducts}));
+        // setProductData(data.updatedProduct);
+        setEditProductBox(false);
+        router.push("/admin-vepari/my-products");
+      }
     } catch (error) {
       console.log(error);
-      toast.error("something went wrong")
-
-    }finally{
-      setIsloading(false)
+      toast.error("something went wrong");
+    } finally {
+      setIsloading(false);
     }
-  }
+  };
 
   const input_style =
     "border border-indigo-300 p-3 rounded-md my-2 focus:outline-none focus:ring-2 focus:ring-indigo-400 transition";
@@ -412,7 +509,7 @@ const EditVepariProduct = ({
         {/* Tags Input */}
         <div className="flex flex-col">
           <label htmlFor="tags" className="text-sm font-medium text-gray-700">
-            Tags <span className="text-red-500">Limit 8 Tags</span>
+            Tags <span className="text-red-500">(Max 8)</span>
           </label>
           <div className="flex flex-wrap gap-2 border border-indigo-300 p-2 rounded-md focus-within:ring-2 ring-indigo-400">
             {tags.map((tag, index) => (
@@ -494,7 +591,7 @@ const EditVepariProduct = ({
                   <img
                     src={prevMainImage}
                     alt="Main Preview"
-                    className="object-cover w-full h-full rounded flex items-center"
+                    className=" w-full h-full rounded flex items-center"
                   />
                 ) : (
                   <span className="text-sm text-gray-500 text-center">
@@ -589,7 +686,11 @@ const EditVepariProduct = ({
         {/* Submit Button */}
         <button
           onClick={handleUpdateProduct}
-          className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-md text-lg font-medium transition"
+          className={`border p-3 rounded-md text-white cursor-pointer transition-all duration-200 w-full ${
+            isLoading
+              ? "bg-indigo-300 cursor-not-allowed"
+              : "bg-indigo-500 hover:bg-indigo-600"
+          }`}
           disabled={isLoading}
         >
           {isLoading ? "Updating..." : "Update Product"}

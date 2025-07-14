@@ -328,7 +328,7 @@ export const getVepariProfile = async (rq: AuthRequest, rs: Response) => {
       return;
     }
 
-    const baseUrl = `${rq.protocol}://${rq.get("host")}/uploads/produtcs/`
+    const baseUrl = `${rq.protocol}://${rq.get("host")}/uploads/products/`
       console.log({...vepari.toObject()});
       
     const productsWithUrls = vepari.products.map((product:any) =>({

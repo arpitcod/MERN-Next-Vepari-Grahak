@@ -101,10 +101,19 @@ export const createProductController = async (
       $push: { products: newProduct._id },
     });
 
+    // const updatedVepariData = await createShopModel.findById(vepariId);
+    // if (!updatedVepariData) {
+    //   rs.status(404).json({
+    //     success:false,
+    //     message:"vepari not found"
+    //   })
+    // }
+
     rs.status(201).json({
       success: true,
       message: "Product created successfully!",
       product: newProduct,
+      // newVepariData:updatedVepariData
     });
     return;
   } catch (error) {
@@ -137,8 +146,8 @@ export const fetchAllProducts = async (rq: Request, rs: Response) => {
 
     const productsWithUrls = fetchProducts.map((product) => ({
       ...product.toObject(),
-      mainImage: baseUrl + product.mainImage,
-      images: product.images.map((image: string) => baseUrl + image),
+      mainImage:product.mainImage.startsWith("http") ? product.mainImage :  baseUrl + product.mainImage,
+      images: product.images.map((img:string)=>img.startsWith("http")?img : baseUrl + img),
     }));
 
     rs.status(200).json({
@@ -179,10 +188,10 @@ export const getSingleVepariProducts = async (
 
     const productsWithUrls = products.map((product) => ({
       ...product.toObject(),
-      mainImage: baseUrl + product.mainImage,
-      images: product.images.map((image: string) => baseUrl + image),
+      mainImage:product.mainImage.startsWith("http") ? product.mainImage : baseUrl + product.mainImage,
+      images: product.images.map((image: string) => image.startsWith("http") ? image : baseUrl + image),
     }));
-    
+
     rs.status(200).json({
       totalProducts: products.length,
       success: true,
@@ -209,12 +218,10 @@ export const updateVepariProductController = async (
     const { id } = rq.params;
     if (!id) {
       rs.status(404).json({
-        success:false,
-        message:"id not found",
-
-      })
-      return
-      
+        success: false,
+        message: "id not found",
+      });
+      return;
     }
     const vepariId = rq.vepari_shop;
     if (!vepariId) {
@@ -235,13 +242,20 @@ export const updateVepariProductController = async (
       details,
     } = rq.body;
 
+
+// for images 
+    let existingImages:string[] = rq.body.existingImages || []
+    if (typeof existingImages === "string") existingImages = [existingImages]
+    
     const files = rq.files as {
       mainImage: Express.Multer.File[];
       images: Express.Multer.File[];
     };
 
+    const newImages = files?.images?.map((file) => file.filename) || [];
+    const finalImages = [...existingImages,...newImages]
+
     const mainImage = files?.mainImage?.[0]?.filename || "";
-    const images = files?.images?.map((file) => file.filename) || [];
     // Validation
     // if (
     //   !name ||
@@ -278,7 +292,8 @@ export const updateVepariProductController = async (
       price: price || existVepariProducts.price,
       quantity: quantity || existVepariProducts.quantity,
       category: category || existVepariProducts.category,
-      images: images.length > 0 ? images : existVepariProducts.images,
+      // images: images.length > 0 ? images : existVepariProducts.images,
+      images: finalImages,
       tags: tags || existVepariProducts.tags,
       description: description || existVepariProducts.description,
       details: details || existVepariProducts.details,
@@ -290,12 +305,32 @@ export const updateVepariProductController = async (
       updatedData,
       { new: true }
     );
-    await createShopModel.findByIdAndUpdate(vepariId,{$addToSet:{products:updatedProduct?._id}});
+
+    if (!updatedProduct) {
+      rs.status(404).json({
+        success: false,
+        message: "product not found after update",
+      });
+      return;
+    }
+
+    const baseUrl = `${rq.protocol}://${rq.get("host")}/uploads/products/`;
+    // console.log({...updatedData.toObject()});
+
+    const productWithUrls = {
+      ...updatedProduct.toObject(),
+      mainImage: baseUrl + updatedProduct.mainImage,
+      images: updatedProduct.images.map((image: string) => baseUrl + image),
+    };
+    
+    await createShopModel.findByIdAndUpdate(vepariId, {
+      $addToSet: { products: updatedProduct?._id },
+    });
 
     rs.status(200).json({
       success: true,
       message: "product updated successfully",
-      updatedProduct: updatedProduct,
+      updatedProduct: productWithUrls,
     });
   } catch (error) {
     console.log(error);
@@ -307,54 +342,49 @@ export const updateVepariProductController = async (
   }
 };
 
-// get single product 
+// get single product
 
-export const  getSingleProductController = async (rq:Request,rs:Response) =>{
+export const getSingleProductController = async (rq: Request, rs: Response) => {
   try {
-    
-    const {id} = rq.params;
+    const { id } = rq.params;
     if (!id) {
       rs.status(400).json({
-        success:false,
-        message:"id not found"
-      })
-      return
+        success: false,
+        message: "id not found",
+      });
+      return;
     }
 
+    const singleProduct = await productModel.findById(id);
 
-    const singleProduct = await productModel.findById(id)
-
-    if (!singleProduct ) {
+    if (!singleProduct) {
       rs.status(404).json({
-        success:false,
-        message:"product not found"
-      })
-      return
+        success: false,
+        message: "product not found",
+      });
+      return;
     }
 
-    const baseUrl = `${rq.protocol}://${rq.get("host")}/uploads/products/`
-      console.log({...singleProduct.toObject()});
-      
+    const baseUrl = `${rq.protocol}://${rq.get("host")}/uploads/products/`;
+    console.log({ ...singleProduct.toObject() });
+
     const productWithUrls = {
       ...singleProduct.toObject(),
-      mainImage: baseUrl + singleProduct.mainImage,
-      images: singleProduct.images.map((image:string) =>baseUrl + image)
-    }
-
+      mainImage: singleProduct.mainImage.startsWith("http") ? singleProduct.mainImage : baseUrl + singleProduct.mainImage,
+      images: singleProduct.images.map((image: string) => image.startsWith("http") ? image : baseUrl + image),
+    };
 
     rs.status(200).json({
-      success:true,
-      message:"product fetch successfully",
-      singleProduct:productWithUrls
-    })
-
+      success: true,
+      message: "product fetch successfully",
+      singleProduct: productWithUrls,
+    });
   } catch (error) {
     console.log(error);
     rs.status(500).json({
-      success:false,
-      message:"something went wrong ",
-      error
-    })
-    
+      success: false,
+      message: "something went wrong ",
+      error,
+    });
   }
-}
+};

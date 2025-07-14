@@ -13,6 +13,43 @@ import { RootState } from "../../redux/store";
 import useGetUser from "@/getData/useGetUser";
 import { fetchVepariData } from "@/getData/useGetVepariData";
 
+
+type ProductsType = {
+  _id?: string; // keep optional only if it's actually optional
+  name: string;
+  brand: string;
+  price: string;
+  quantity: string;
+  category: string;
+  tags: string[];
+  description: string;
+  details: string;
+  mainImage?: string;
+  images?: string[];
+};
+
+type VepariType = {
+  _id?:string;
+  banner: File | string | null;
+  profile: File | string | null;
+  vepariname: string;
+  shopname: string;
+  description: string;
+  address: {
+    country: string;
+    state: string;
+    city: string;
+  };
+  category: string;
+  contact: string;
+  shopTime: {
+    startTime: string;
+    endTime: string;
+  };
+  isAdmin:boolean;
+  isActive:boolean;
+  products:ProductsType[]
+};
 const Navbar = () => {
   // Initialize data fetching hooks
   // useGetVepariData();
@@ -21,8 +58,8 @@ const Navbar = () => {
   useGetUser();
   
   const getVepariData = useSelector(
-    (state: RootState) => state?.getVepari?.getVepari
-  );
+      (state: RootState) => state?.getVepari?.getVepari as VepariType | null
+    );
 
   useEffect(() => {
     console.log('Vepari data heregetVepariDAta', getVepariData)
@@ -79,8 +116,8 @@ const Navbar = () => {
         phone: "",
       });
       setShowLogin(false);
-    } catch (error: any) {
-      toast.error(error.message || "Something went wrong");
+    } catch (error) {
+      toast.error("Something went wrong");
       console.error("Login error:", error);
     } finally {
       setIsLoading(false);
@@ -114,9 +151,9 @@ const Navbar = () => {
       } else {
         throw new Error(responseData.message || "Logout failed");
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error("Logout error:", error);
-      toast.error(error.message || "Something went wrong during logout");
+      toast.error("Something went wrong during logout");
       
       // Even if the server request fails, clear local state for better UX
       localStorage.removeItem("vg_token");
@@ -147,6 +184,7 @@ const Navbar = () => {
   // Determine if user is admin
   // const isAdmin = getVepariData?.vepari?.isAdmin === true;
 
+  
   
 
   const border_bg_text_color = " hover:bg-indigo-500 hover:text-white border border-indigo-500 transition-all"
@@ -215,7 +253,7 @@ const Navbar = () => {
                 Faqs
               </Link>
               
-              {getVepariData?.vepari?.isAdmin === true ? (
+              {getVepariData?.isAdmin === true ? (
                 <Link
                   href="/admin-vepari/profile"
                   className={`border block my-1 text-center py-2 rounded-md ${border_bg_text_color}`}
