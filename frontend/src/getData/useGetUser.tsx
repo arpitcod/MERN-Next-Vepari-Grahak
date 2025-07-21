@@ -31,7 +31,7 @@ const useGetUser = () => {
         }
 
         if (data.success) {
-          dispatch(setUserData(data));
+          dispatch(setUserData(data.user));
         } else {
           dispatch(setUserData(null));
         }

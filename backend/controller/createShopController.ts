@@ -4,6 +4,7 @@ import authModel from "../model/authModel";
 
 interface AuthRequest extends Request {
   user?: string; // ✅ Changed to string
+  userId?:string
 }
 
 export const createShopController = async (
@@ -12,7 +13,8 @@ export const createShopController = async (
 ): Promise<void> => {
   try {
     const { vepariname, shopname, description, category, contact } = rq.body;
-    const userId = rq.user;
+    const user = rq.user;
+    const userId = rq.userId;
 
     // Extract address and shop time from form data
     const country = rq.body.country || "india";
@@ -33,7 +35,7 @@ export const createShopController = async (
       return;
     }
 
-    console.log("User ID:", userId);
+    
 
     if (!vepariname) {
       rs.status(400).json({
@@ -83,7 +85,7 @@ export const createShopController = async (
     const newShop = await new createShopModel({
       vepariname,
       shopname,
-      user: userId,
+      user: user,
       description,
       profile:profileUrl,
       // profile: profile ? `/uploads/${profile}`  : `https://ui-avatars.com/api/?name=${shopname}`,
@@ -105,10 +107,14 @@ export const createShopController = async (
     // Update the user's vepari_shop field
     await authModel.findByIdAndUpdate(userId, { vepari_shop: newShop._id });
 
+    const populatedShop = await createShopModel.findById(newShop._id).populate("user");
+
+      // console.log("User ID:", userId);
+      // console.log("User ID:", user);
     rs.status(201).json({
       success: true,
-      message: "Shop created successfully. You are now a Vepari!",
-      newShop,
+      message: "Shop created successfully.",
+      newShop:populatedShop,
     });
     return;
   } catch (error) {
@@ -122,9 +128,12 @@ export const createShopController = async (
   }
 };
 
-export const deleteShopController = async (rq: Request, rs: Response) => {
+
+// delete shop 
+export const deleteShopController = async (rq: AuthRequest, rs: Response) => {
   try {
     const { id } = rq.params;
+    const userId = rq.user
 
     if (!id) {
       rs.status(401).json({
@@ -132,6 +141,13 @@ export const deleteShopController = async (rq: Request, rs: Response) => {
         message: "shop id not match",
       });
       return;
+    }
+    if (!userId) {
+      rs.status(404).json({
+        success:false,
+        message:"user not logged in"
+      })
+      return
     }
 
     const vepari_shop = await createShopModel.findById(id);
@@ -144,6 +160,7 @@ export const deleteShopController = async (rq: Request, rs: Response) => {
     }
 
     await createShopModel.findByIdAndDelete(id);
+    await authModel.findByIdAndUpdate(userId,{vepari_shop:null})
 
     rs.status(200).json({
       success: true,
@@ -217,7 +234,7 @@ export const updateVepariProfileController = async (
       city, // સીધા rq.body માંથી લો
       startTime, // સીધા rq.body માંથી લો
       endTime, // સીધા rq.body માંથી લો
-    } = await rq.body;
+    } =  rq.body;
 
 //      const country = rq.body.address?.country || "india";
 // const state = rq.body.address?.state || "";

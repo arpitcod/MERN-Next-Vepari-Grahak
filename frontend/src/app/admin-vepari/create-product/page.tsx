@@ -18,14 +18,34 @@ const Page = () => {
     mainImage: File | null; // single file
     images: File[]; // array of multiple files
   };
+  type VepariType = {
+  _id?: string;
+  banner: File | string | null;
+  profile: File | string | null;
+  vepariname: string;
+  shopname: string;
+  description: string;
+  address: {
+    country: string;
+    state: string;
+    city: string;
+  };
+  category: string;
+  contact: string;
+  shopTime: {
+    startTime: string;
+    endTime: string;
+  };
+  isAdmin: boolean;
+  isActive: boolean;
+  products: ProductsType[];
+};
 
   // dispatch 
   // const dispatch = useDispatch()
   // fetcch vepari data
-  const getVepariData = useSelector(
-    (state: RootState) => state?.getVepari?.getVepari
-  );
-  const vepari = getVepariData?.vepari;
+  const vepari = useSelector((state: RootState) => state?.getVepari?.getVepari as VepariType | null);
+
 
   useEffect(() => {
     if (vepari?.category) {

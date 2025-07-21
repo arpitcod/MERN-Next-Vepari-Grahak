@@ -1,32 +1,78 @@
 "use client";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
-const CreateShop = () => {
-  type ShopType = {
-    banner: File | null;
-    profile: File | null;
-    vepariname: string;
-    shopname: string;
-    description: string;
-    address: {
-      country: string;
-      state: string;
-      city: string;
-    };
-    category: string;
-    contact: string;
-    shopTime: {
-      startTime: string;
-      endTime: string;
-    };
-  };
+import { RootState } from "../../../../redux/store";
+import { setGetVepari } from "../../../../redux/GetVepariSlice";
+import { setUserData } from "../../../../redux/UserSlice";
 
+type ProductsType = {
+  _id?: string; // keep optional only if it's actually optional
+  name: string;
+  brand: string;
+  price: string;
+  quantity: string;
+  category: string;
+  tags: string[];
+  description: string;
+  details: string;
+  mainImage?: string;
+  images?: string[];
+};
+
+type VepariType = {
+  _id?:string;
+  banner: File | string | null;
+  profile: File | string | null;
+  vepariname: string;
+  shopname: string;
+  description: string;
+  address: {
+    country: string;
+    state: string;
+    city: string;
+  };
+  category: string;
+  contact: string;
+  shopTime: {
+    startTime: string;
+    endTime: string;
+  };
+  isAdmin:boolean;
+  isActive:boolean;
+  products:ProductsType[]
+};
+type ShopType = {
+  banner: File | null;
+  profile: File | null;
+  vepariname: string;
+  shopname: string;
+  description: string;
+  address: {
+    country: string;
+    state: string;
+    city: string;
+  };
+  category: string;
+  contact: string;
+  shopTime: {
+    startTime: string;
+    endTime: string;
+  };
+};
+const CreateShop = () => {
+
+  const dispatch = useDispatch()
+  const vepari = useSelector((state: RootState) => state?.getVepari?.getVepari as VepariType | null
+  );
+  const user = useSelector((state: RootState) => state?.user?.user);
   const router = useRouter();
   // token
   const token = localStorage.getItem("vg_token");
   // const [token] = useState(localStorage.getItem("vg_token" as string))
+
+  const [isLoading, setIsLoading] = useState(false);
   const [shopData, setShopData] = useState<ShopType>({
     banner: null,
     profile: null,
@@ -46,8 +92,8 @@ const CreateShop = () => {
     },
   });
 
-  //category list 
-   const categoryOptions = [
+  //category list
+  const categoryOptions = [
     "Grocery",
     "Electronics",
     "Clothing",
@@ -100,6 +146,7 @@ const CreateShop = () => {
 
     // toast.success("shop create successfuly");
     // console.log(shopData);
+    setIsLoading(true);
     try {
       const response = await fetch("http://localhost:5000/api/create-shop", {
         method: "POST",
@@ -112,14 +159,16 @@ const CreateShop = () => {
       const data = await response.json();
 
       if (response?.ok) {
-        router.push("/admin-vepari/dashboard");
+        dispatch(setGetVepari({...vepari,...data.newShop}))
+        dispatch(setUserData({...user,vepari_shop:data?.newShop?._id}))
+        // dispatch(setUserData({...user}))
+        toast.success(data.message);
+        router.push("/admin-vepari/profile");
         console.log(formData);
-        
-        toast.success(data.message || "Shop created successfully");
-        // disPatch()
-        console.log(response);
+
+        // console.log(response);
         console.log(data);
-        console.log(token);
+        // console.log(token);
       } else {
         toast.error(data.message || "Failed to create shop");
         console.log("Error response:", data);
@@ -128,6 +177,8 @@ const CreateShop = () => {
       toast.error("Something went wrong while creating shop");
       console.log(error);
       console.log(shopData);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -298,31 +349,36 @@ const CreateShop = () => {
           }
           value={shopData.category}
         /> */}
-         <select
+        <select
           name="category"
           id="category"
-           className={` p-3 rounded-md border`}
-            onChange={(e) =>
-              setShopData((prev) => ({
-                ...prev,
-                category: e.target.value,
-              }))
-            }
-            value={shopData.category}
-          >
-             {/* placeholder option */}
-               <option value="" className="border">Select category</option>
-               {
-                  categoryOptions.map((category) =>(
-                    <option value={category} key={category} className="text-black">{category}</option>
-                  ))
-               }
-          </select>
+          className={` p-3 rounded-md border`}
+          onChange={(e) =>
+            setShopData((prev) => ({
+              ...prev,
+              category: e.target.value,
+            }))
+          }
+          value={shopData.category}
+        >
+          {/* placeholder option */}
+          <option value="" className="border">
+            Select category
+          </option>
+          {categoryOptions.map((category) => (
+            <option value={category} key={category} className="text-black">
+              {category}
+            </option>
+          ))}
+        </select>
       </div>
       <div className="flex flex-col">
         <label>Contact</label>
         <input
           type="number"
+          // type="text"
+          // pattern="\d*"
+          // inputMode="numeric"
           name="contact"
           id="contact"
           placeholder="Enter Contact"
@@ -376,8 +432,9 @@ const CreateShop = () => {
         <button
           className="border p-3 rounded-md bg-indigo-500 text-indigo-50 hover:bg-indigo-600 cursor-pointer"
           onClick={handleCreateShop}
+          disabled={isLoading}
         >
-          Create Shop
+          {isLoading ? "loading..." : "Create Shop"}
         </button>
       </div>
     </div>

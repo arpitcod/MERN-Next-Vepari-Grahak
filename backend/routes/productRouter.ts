@@ -1,5 +1,5 @@
 import express from "express"
-import { createProductController, fetchAllProducts, getSingleProductController, getSingleVepariProducts, updateVepariProductController } from "../controller/createProductController"
+import { createProductController, deleteProductController, fetchAllProducts, getSingleProductController, getSingleVepariProducts, updateVepariProductController } from "../controller/createProductController"
 import { adminMiddleware, userMiddleware } from "../middleware/authMiddleware"
 import { upload } from "../middleware/multerMiddleware"
 
@@ -25,5 +25,8 @@ router.get("/fetch-all-products",userMiddleware,adminMiddleware,fetchAllProducts
    { name: "mainImage", maxCount: 1 },
    { name: "images", maxCount: 7 },
 ]),updateVepariProductController)
+
+// delete product http://localhost:5000/api/delete-product/6878e0796186fc6cfe46da53
+router.delete("/delete-product/:id",userMiddleware,adminMiddleware,deleteProductController)
  
 export default router 

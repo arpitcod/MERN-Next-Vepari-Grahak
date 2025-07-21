@@ -388,3 +388,41 @@ export const getSingleProductController = async (rq: Request, rs: Response) => {
     });
   }
 };
+
+
+// delete product 
+
+export const deleteProductController = async (rq:Request,rs:Response) =>{
+  try {
+    const {id} = rq.params
+
+    if (!id) {
+      rs.status(404).json({
+        success:false,
+        message:"product id not found"
+      })
+      return
+    }
+
+    const product = await productModel.findByIdAndDelete(id)
+    if (!product) {
+      rs.status(404).json({
+        success:false,
+        message:"product not found"
+      })
+    }
+
+    rs.status(200).json({
+      success:true,
+      message:"product deleted success",
+      product
+    })
+    
+  } catch (error) {
+    console.log(error);
+    rs.status(500).json({
+      success:false,
+      message:"something went wrong"
+    })
+  }
+}

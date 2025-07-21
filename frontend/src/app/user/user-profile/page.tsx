@@ -12,10 +12,11 @@ import { MdEdit } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { setUserData } from "../../../../redux/UserSlice";
+import { RootState } from "../../../../redux/store";
 
 const Page = () => {
   useGetUser();
-  const user = useSelector((state: any) => state.user.user);
+  const user = useSelector((state: RootState) => state?.user?.user);
   // const router = useRouter();
   const [showBox, setShowBox] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -23,29 +24,30 @@ const Page = () => {
   // console.log("user", user);
 
   const [prevUSer, setPrevUser] = useState({
-    username: user?.user?.username,
-    phone: user?.user?.phone,
+    username: user?.username,
+    phone: user?.phone,
   });
+  console.log("from user profile", user);
 
   //dispatch
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
   // show box
   const handleShowBox = () => {
-     // everytime box khule, latest user data mukho
-  if (!showBox) {
-    setPrevUser({
-      username: user?.user?.username,
-      phone: user?.user?.phone,
-    });
-  }
-  setShowBox(!showBox);
+    // everytime box khule, latest user data mukho
+    if (!showBox) {
+      setPrevUser({
+        username: user?.username,
+        phone: user?.phone,
+      });
+    }
+    setShowBox(!showBox);
   };
   // edit profile
   const handleEditProfile = async () => {
-    setIsLoading(true)
+    setIsLoading(true);
     try {
       const response = await fetch(
-        `http://localhost:2929/api/update-user/${user?.user._id}`,
+        `http://localhost:5000/api/update-user/${user?._id}`,
         {
           method: "PUT",
           headers: {
@@ -56,10 +58,16 @@ const Page = () => {
       );
       const responseData = await response.json();
       if (responseData?.success) {
-        dispatch(setUserData({ ...user, user: { ...user.user, ...prevUSer } }));
+        dispatch(
+          setUserData({
+            ...user,
+            username: prevUSer.username,
+            phone: prevUSer.phone,
+          })
+        );
         toast.success(responseData?.message);
         // router.push("/user/user-profile");
-        setShowBox(false)
+        setShowBox(false);
       } else {
         toast.error(responseData?.message || "Something went wrong");
       }
@@ -75,11 +83,11 @@ const Page = () => {
       {/* <h1 className="text-center text-xl font-medium mt-3"> {user?.user?.username}</h1> */}
       <div className="border py-3 mx-3 flex items-center mt-3 rounded-md bg-white">
         <HiUser className="text-2xl mx-1" />
-        <p className="text-lg font-medium">{user?.user?.username}</p>
+        <p className="text-lg font-medium">{user?.username}</p>
       </div>
       <div className="border py-3 mx-3 flex items-center mt-3 rounded-md bg-white">
         <FaPhoneAlt className="text-xl mx-2" />
-        <p className="text-lg font-medium">{user?.user?.phone}</p>
+        <p className="text-lg font-medium">{user?.phone}</p>
       </div>
       {showBox && (
         <div className="fixed inset-0 bg-[rgba(0,0,0,0.7)] flex justify-center items-center z-50">
@@ -120,7 +128,7 @@ const Page = () => {
                 setPrevUser({ ...prevUSer, phone: e.target.value })
               }
             />
-             {/* <input
+            {/* <input
                           type="text"
                           inputMode="numeric"
                           pattern="[0-9]*"
@@ -147,7 +155,7 @@ const Page = () => {
                   : ""
               }`}
               onClick={handleEditProfile}
-              disabled={prevUSer?.phone?.length < 10}  
+              disabled={prevUSer?.phone?.length < 10}
             >
               Edit Profile
             </button>

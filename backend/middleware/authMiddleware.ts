@@ -8,6 +8,7 @@ interface AuthReq extends Request {
   isAdmin? :boolean;
   vepariId?: string;
   vepari_shop?:string | null
+  userId?:string
 }
 
 export const userMiddleware = async (rq: AuthReq, rs: Response, next: NextFunction):Promise <void> =>  {
@@ -58,6 +59,7 @@ export const userMiddleware = async (rq: AuthReq, rs: Response, next: NextFuncti
 
     // rq.user = decode.id; // ✅ Assign correct type
      rq.user = userData;
+     rq.userId = userData.id
     rq.vepari_shop = userData.vepari_shop?._id?.toString() || null;
     rq.isAdmin = (userData.vepari_shop as any)?.isAdmin || false;
     // rq.vepariId = vepariData?._id.toString();

@@ -78,9 +78,16 @@ const Navbar = () => {
     phone: "",
   });
 
+  
+
   useEffect(() => {
     const token = localStorage.getItem("vg_token");
-    setUserToken(token);
+    if (token) {
+      setUserToken(token);
+      
+    }else{
+      router.push("/")
+    }
   }, []);
 
   const handleSignupLogin = async () => {
