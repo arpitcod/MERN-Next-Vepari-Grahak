@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation";
 import { RootState } from "../../redux/store";
 import useGetUser from "@/getData/useGetUser";
 import { fetchVepariData } from "@/getData/useGetVepariData";
+import MyCart from "./MyCart";
 
 
 type ProductsType = {
@@ -69,6 +70,8 @@ const Navbar = () => {
   const [userToken, setUserToken] = useState<string | null>(null);
   const [showLogin, setShowLogin] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [showCartBox, setShowCartBox] = useState(false);
+    // const [productId, setProductId] = useState("");
   
   const dispatch = useDispatch();
   const router = useRouter();
@@ -89,6 +92,11 @@ const Navbar = () => {
       router.push("/")
     }
   }, []);
+
+  const handleShowCartBox = () => {
+    setShowCartBox(true);
+    // setProductId(id);
+  };
 
   const handleSignupLogin = async () => {
     if (!user.username || !user.phone) {
@@ -359,14 +367,38 @@ const Navbar = () => {
         </div>
       )}
 
-      <div>
+      <div className="relative">
         <button
           type="button"
           className="py-3 px-5 bg-indigo-500 hover:bg-indigo-600 transition-all cursor-pointer text-white rounded-md flex items-center gap-2 text-lg"
+          onClick={handleShowCartBox}
         >
-          <FaShoppingCart /> My Cart
+          <FaShoppingCart /> Cart
         </button>
+        {(() => {
+          const cartItems = useSelector((state: RootState) => state?.cart?.cartItems);
+          const totalItems = cartItems.reduce((total, item) => total + item.quantity, 0);
+          return totalItems > 0 && (
+            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold">
+              {totalItems > 99 ? '99+' : totalItems}
+            </span>
+          );
+        })()}
       </div>
+      {showCartBox && (
+         <div className="fixed inset-0 flex justify-center items-center z-50 bg-[rgba(0,0,0,0.7)]">
+           <div className="bg-gray-50  p-4 relative rounded-lg w-[100%] max-w-[500px] h-[600px] mx-3 overflow-auto">
+             <button
+               onClick={() => setShowCartBox(false)}
+               className="absolute top-2 right-2 text-xl cursor-pointer"
+             >
+               <IoMdClose className="text-3xl" />
+             </button>
+             
+             <MyCart />
+           </div>
+         </div>
+       )}
     </div>
   );
 };

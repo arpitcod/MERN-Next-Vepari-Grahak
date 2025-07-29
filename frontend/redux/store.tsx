@@ -4,17 +4,20 @@ import userReducer from "./UserSlice"
 // import getUserReducer from "./GetUserSlice"
 import getVepariReducer from "./GetVepariSlice"
 import vepariProductsReducer from "./VepariProductSlice"
+import cartReducer from "./CartSlice"
+import { cartMiddleware } from "./cartMiddleware"
 
 const store = configureStore({
-
     reducer:{
         user:userReducer,
         // getUser:getUserReducer,
         getVepari:getVepariReducer,
-        vepariProducts:vepariProductsReducer
+        vepariProducts:vepariProductsReducer,
+        cart:cartReducer
         // vepari:vepariReducer 
-
-    }
+    },
+    middleware: (getDefaultMiddleware) =>
+        getDefaultMiddleware().concat(cartMiddleware),
 })
 
 export type RootState = ReturnType<typeof store.getState>;

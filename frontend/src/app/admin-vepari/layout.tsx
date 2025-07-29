@@ -120,7 +120,7 @@ const Layout = ({ children }: LayoutProps) => {
     <div>
       <div className="flex flex-col justify-center sm:flex-row gap-2 border border-indigo-900 py-2 bg-gray-100 px-2 mx-2 rounded-md ">
         <div className="border border-indigo-500 sm:h-[700px] sm:w-[250px] px-2 rounded-lg shadow-sm bg-white ">
-          <h1 className="text-center text-2xl font-medium my-3 text-indigo-600">
+          <h1 className="text-center text-2xl font-semibold my-3 text-indigo-600">
             {" "}
             Vepari Studio
           </h1>
