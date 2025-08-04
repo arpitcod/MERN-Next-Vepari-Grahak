@@ -1,25 +1,22 @@
 "use client";
-
-import ProductDetail from "@/components/ProductDetail";
 import React, { useEffect, useState } from "react";
-import { FaHeart, FaMinus, FaPlus, FaRegHeart } from "react-icons/fa";
+import { useSearchParams } from "next/navigation";
+import { toast } from "react-toastify";
+import { FaHeart, FaMinus, FaPlus, FaRegHeart, FaSearch } from "react-icons/fa";
 import { FaCartShopping } from "react-icons/fa6";
-import { IoMdClose } from "react-icons/io";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../../../redux/store";
+import { RootState } from "../../../redux/store";
 import {
   addToCart,
   decreaseQuantity,
   increaseQuantity,
-} from "../../../../redux/CartSlice";
-import {
-  clearProducts,
-  likeProduct,
-  unlikeProduct,
-} from "../../../../redux/LikesSlice";
+} from "../../../redux/CartSlice";
+import { IoMdClose } from "react-icons/io";
+import ProductDetail from "@/components/ProductDetail";
+import { likeProduct, unlikeProduct } from "../../../redux/LikesSlice";
 
 type ProductsType = {
-  _id?: string;
+  _id?: string; // keep optional only if it's actually optional
   name: string;
   brand: string;
   price: string;
@@ -54,25 +51,45 @@ type VepariType = {
   isActive: boolean;
   products: ProductsType[];
 };
-const Likes = () => {
-  const [likes, setLikes] = useState<ProductsType[]>([]);
-  const [loading] = useState(false);
+const VepariStorePage = () => {
+  const searchParams = useSearchParams();
+  const vepariId = searchParams.get("id");
 
-  const getVepariData = useSelector(
-    (state: RootState) => state?.getVepari?.getVepari as VepariType | null
-  );
+  const [vepariData, setVepariData] = useState<VepariType | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const getLikedProducts = () => {
-      const data = localStorage.getItem("Liked_products");
-      if (data) {
-        const parsedData = JSON.parse(data);
-        setLikes(parsedData);
-        console.log("likes data", parsedData);
+    const fetchVepariData = async () => {
+      try {
+        const token = localStorage.getItem("vg_token");
+        if (!vepariId || !token) return;
+
+        const response = await fetch(
+          `http://localhost:5000/api/get-vepari/${vepariId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        const data = await response.json();
+        if (response.ok) {
+          setVepariData(data?.getVepariData);
+          console.log("frpm vepari store page dta", data);
+          console.log("frpm vepari store page vepari data", vepariData);
+        } else {
+          toast.error("Failed to fetch vepari data");
+        }
+      } catch (error) {
+        console.log(error);
+        toast.error("Something went wrong");
+      } finally {
+        setLoading(false);
       }
     };
-    getLikedProducts();
-  }, []);
+
+    fetchVepariData();
+  }, [vepariId]);
 
   const dispatch = useDispatch();
   //   if (loading) return <p className="text-center text-2xl font-semibold mt-5">Loading...</p>;
@@ -86,26 +103,6 @@ const Likes = () => {
     const item = cartItems.find((item) => item._id === productId);
     return item ? item.quantity : 0;
   };
-
-  const likedProducts = useSelector(
-    (state: RootState) => state.liked.likedProducts
-  );
-
-  const handleLikedProduct = (product: ProductsType) => {
-    const isLiked = likedProducts.some((p) => p._id === product._id);
-    if (isLiked) {
-      dispatch(unlikeProduct(product));
-    } else {
-      dispatch(likeProduct(product));
-    }
-  };
-
-  // useEffect(() => {
-  //   const storedLikes = JSON.parse(
-  //     localStorage.getItem("Liked_products") || "[]"
-  //   );
-  //   setLikes(storedLikes);
-  // }, []);
 
   // handle add to cart
   const handleAddToCart = (product: ProductsType) => {
@@ -128,34 +125,69 @@ const Likes = () => {
     setShowProductDetailBox(true);
     setProductId(id);
   };
+
+  // liked products
+  const likedProducts = useSelector(
+    (state: RootState) => state.liked.likedProducts
+  );
+
+  const handleLikedProduct = (product: ProductsType) => {
+    const isLiked = likedProducts.some((p) => p._id === product._id);
+    if (isLiked) {
+      dispatch(unlikeProduct(product));
+    } else {
+      dispatch(likeProduct(product));
+    }
+  };
   return (
-    <div className="p-2">
-      <div className="flex justify-between items-center my-3">
-        <h2 className="text-xl font-bold mb-4">
-          Liked Products({likedProducts?.length})
-        </h2>
-        <button
-          className={`transition-all font-semibold rounded-lg p-2 cursor-pointer
-    ${
-      likedProducts.length === 0
-        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-        : "bg-red-600 hover:bg-red-700 text-white"
-    }`}
-          onClick={() => dispatch(clearProducts())}
-          disabled={likedProducts.length === 0}
-        >
-          Clear Products
-        </button>
+    <div className="border p-3 bg-gray-50">
+      <div className="border rounded-lg overflow-auto">
+        {typeof vepariData?.banner === "string" ? (
+          <img
+            src={vepariData?.banner}
+            alt="profile preview"
+            className="w-[100%] max-w-[1920px] h-[198px] object-cover"
+          />
+        ) : null}
+      </div>
+      <div className=" my-2 flex gap-3 p-1 rounded-lg bg-white border">
+        {/* <div className="flex gap-2 shadow-md border border-gray-300  w-[30%] bg-white rounded-lg"> */}
+        <div className="flex gap-2 w-[40%] ">
+          <div className=" ">
+            {typeof vepariData?.profile === "string" ? (
+              <img
+                src={vepariData?.profile}
+                alt="profile preview"
+                className="w-[100px] h-[100px] rounded-[50%]"
+              />
+            ) : null}
+          </div>
+          <div className=" flex  flex-col justify-center">
+            <p className="font-semibold text-3xl text-gray-800">
+              {vepariData?.shopname}
+            </p>
+            <p className="font-medium text-gray-600 text-lg">
+              Total Products: {vepariData?.products.length}
+            </p>
+          </div>
+        </div>
+        {/* <div className="shadow-md flex items-center border border-gray-300 bg-white rounded-lg p-3 w-[70%]"> */}
+        <div className=" flex items-center  p-3 w-[60%]">
+          <div className="flex items-center gap-3 bg-white border border-gray-300 rounded-lg p-4 shadow-sm focus-within:ring-2 focus-within:ring-indigo-400 w-full">
+            <FaSearch className="text-gray-500" />
+            <input
+              type="text"
+              placeholder="Search products..."
+              className="w-full outline-none bg-transparent text-gray-700 placeholder-gray-500"
+            />
+          </div>
+        </div>
       </div>
       {loading ? (
         <h1 className="text-center text-2xl">Loading...</h1>
-      ) : likedProducts.length === 0 ? (
-        <div className="text-center text-gray-600 text-lg mt-10">
-          You haven’t liked any products yet.
-        </div>
       ) : (
-        <div className=" border p-3 grid rounded-lg justify-center sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-5 flex-wrap ">
-          {likedProducts?.map((product) => {
+        <div className=" border p-3 grid rounded-lg justify-center sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5 flex-wrap ">
+          {vepariData?.products?.map((product) => {
             const quantity = getCartQuantity(product._id ?? "");
             const maxQty = parseInt(product.quantity);
 
@@ -173,7 +205,7 @@ const Likes = () => {
                   className=" w-[250px] h-[150px] rounded-md"
                 />
                 <p className=" text-gray-500 text-sm capitalize">
-                  {getVepariData?.shopname}
+                  {vepariData?.shopname}
                 </p>
                 <p className="text-gray-800 font-medium capitalize">
                   {product?.name?.length > 50
@@ -277,4 +309,4 @@ const Likes = () => {
   );
 };
 
-export default Likes;
+export default VepariStorePage;

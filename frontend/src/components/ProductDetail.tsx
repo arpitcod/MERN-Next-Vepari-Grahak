@@ -1,13 +1,20 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { FaMinus, FaPlus } from "react-icons/fa";
+import { FaHeart, FaMinus, FaPlus, FaRegHeart } from "react-icons/fa";
 import { toast } from "react-toastify";
 import { RootState } from "../../redux/store";
-import { addToCart, increaseQuantity, decreaseQuantity } from "../../redux/CartSlice";
+import {
+  addToCart,
+  increaseQuantity,
+  decreaseQuantity,
+} from "../../redux/CartSlice";
+import { usePathname, useRouter } from "next/navigation";
+import { IoStorefront } from "react-icons/io5";
+import { likeProduct, unlikeProduct } from "../../redux/LikesSlice";
 
 type ProductsType = {
-  _id?: string;
+  _id?: string; // keep optional only if it's actually optional
   name: string;
   brand: string;
   price: string;
@@ -20,16 +27,77 @@ type ProductsType = {
   images?: string[];
 };
 
+type VepariType = {
+  _id?: string;
+  banner: File | string | null;
+  profile: File | string | null;
+  vepariname: string;
+  shopname: string;
+  description: string;
+  address: {
+    country: string;
+    state: string;
+    city: string;
+  };
+  category: string;
+  contact: string;
+  shopTime: {
+    startTime: string;
+    endTime: string;
+  };
+  isAdmin: boolean;
+  isActive: boolean;
+  products: ProductsType[];
+};
+
 const ProductDetail = ({ productId }: { productId: string }) => {
   const dispatch = useDispatch();
+  // navigate
+  const router = useRouter();
+  const pathname = usePathname();
+  console.log("pathname", pathname);
+
   const [isLoading, setIsLoading] = useState(false);
   const [fetchProduct, setFetchProduct] = useState<ProductsType | null>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  
+
   const cartItems = useSelector((state: RootState) => state?.cart?.cartItems);
+  const getVepariData = useSelector(
+    (state: RootState) => state?.getVepari?.getVepari as VepariType | null
+  );
+
+  const likedProducts = useSelector((state: RootState) => state.liked.likedProducts);
   
+  const handleLikedProduct = (product: ProductsType) => {
+      const isLiked = likedProducts.some((p) => p._id === product._id);
+      if (isLiked) {
+          dispatch(unlikeProduct(product))
+      } else {
+        dispatch(likeProduct(product))
+      }
+    
+    };
+
+  // useEffect(() => {
+  //   const storedLikes = JSON.parse(
+  //     localStorage.getItem("Liked_products") || "[]"
+  //   );
+  //   setLikes(storedLikes);
+
+  //   const handleLikesUpdate = () => {
+  //     const updatedLikes = JSON.parse(
+  //       localStorage.getItem("Liked_products") || "[]"
+  //     );
+  //     setLikes(updatedLikes);
+  //   };
+
+  //   window.addEventListener("likesUpdated", handleLikesUpdate);
+  //   return () => window.removeEventListener("likesUpdated", handleLikesUpdate);
+  // }, []);
+
+  // add to cart
   const getCartQuantity = (productId: string) => {
-    const item = cartItems.find(item => item._id === productId);
+    const item = cartItems.find((item) => item._id === productId);
     return item ? item.quantity : 0;
   };
 
@@ -48,7 +116,7 @@ const ProductDetail = ({ productId }: { productId: string }) => {
     dispatch(decreaseQuantity(productId));
   };
 
-
+  // fetchSingleProduct
   useEffect(() => {
     const fetchSingleProduct = async () => {
       setIsLoading(true);
@@ -92,6 +160,14 @@ const ProductDetail = ({ productId }: { productId: string }) => {
     );
   }
 
+  // handle vepari store
+
+  const handleVepariStore = () => {
+    if (getVepariData && getVepariData._id) {
+      router.push(`/vepari-store?id=${getVepariData._id}`);
+      // toast(`/vepari-store?id=${getVepariData._id}`);
+    }
+  };
   return (
     <div className="p-4 space-y-6">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -152,39 +228,86 @@ const ProductDetail = ({ productId }: { productId: string }) => {
               ))}
             </div>
 
-            <div className="mt-4">
-              {(() => {
-                const quantity = getCartQuantity(fetchProduct._id || "");
-                const maxQty = parseInt(fetchProduct.quantity);
-                
-                return quantity === 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+              {/* Add to Cart / Quantity Control */}
+              <div>
+                {(() => {
+                  const quantity = getCartQuantity(fetchProduct._id || "");
+                  const maxQty = parseInt(fetchProduct.quantity);
+
+                  return quantity === 0 ? (
+                    <button
+                      className="w-full h-12 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition duration-200 shadow-md"
+                      onClick={() => handleAddToCart(fetchProduct)}
+                    >
+                      Add to Cart
+                    </button>
+                  ) : (
+                    <div className="flex justify-center items-center w-full h-12 bg-indigo-600 text-white font-semibold rounded-lg transition duration-200 shadow-md gap-3 px-4">
+                      <button
+                        onClick={() =>
+                          fetchProduct._id && handleDecrease(fetchProduct._id)
+                        }
+                        className="w-9 h-9 bg-indigo-700 hover:bg-indigo-800 rounded-full flex justify-center items-center"
+                      >
+                        <FaMinus size={12} />
+                      </button>
+                      <span className="text-xl">{quantity}</span>
+                      <button
+                        onClick={() =>
+                          fetchProduct._id &&
+                          handleIncrease(fetchProduct._id, maxQty)
+                        }
+                        disabled={quantity >= maxQty}
+                        className="w-9 h-9 bg-indigo-700 hover:bg-indigo-800 rounded-full flex justify-center items-center disabled:opacity-50"
+                      >
+                        <FaPlus size={12} />
+                      </button>
+                    </div>
+                  );
+                })()}
+              </div>
+
+              {/* Store Button */}
+              {pathname === "/vepari-store" ? null : (
+                <div>
                   <button
-                    className="h-[50px] w-[200px] bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition text-lg font-semibold"
-                    onClick={() => handleAddToCart(fetchProduct)}
+                    className="w-full h-12  bg-amber-500 hover:bg-amber-600 text-white font-semibold rounded-lg flex items-center justify-center gap-2 transition duration-200 shadow-md"
+                    onClick={handleVepariStore}
                   >
-                    ADD TO CART
+                    <IoStorefront size={20} />
+                    Visit Store
                   </button>
-                ) : (
-                  <div className="flex items-center justify-between h-[50px] w-[200px] bg-indigo-500 rounded-lg text-white px-4">
-                    <button
-                      onClick={() => fetchProduct._id && handleDecrease(fetchProduct._id)}
-                      className="w-10 h-10 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 transition flex justify-center items-center"
-                    >
-                      <FaMinus size={14} />
-                    </button>
+                </div>
+              )}
 
-                    <span className="font-semibold text-xl">{quantity}</span>
-
-                    <button
-                      onClick={() => fetchProduct._id && handleIncrease(fetchProduct._id, maxQty)}
-                      disabled={quantity >= maxQty}
-                      className="w-10 h-10 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 transition flex justify-center items-center disabled:opacity-50"
-                    >
-                      <FaPlus size={14} />
-                    </button>
-                  </div>
-                );
-              })()}
+              {/* Like Button */}
+              <div>
+                <button
+                  className={`w-full h-12 border flex items-center gap-2 justify-center ${
+                    likedProducts.some((p) => p._id === fetchProduct._id)
+                      ? "bg-red-600 hover:bg-red-700 text-white"
+                      : "bg-white hover:bg-gray-100 border border-gray-400"
+                  } transition-all duration-200 rounded-md text-md font-semibold`}
+                  onClick={() => {
+                    
+                    handleLikedProduct(fetchProduct);
+                  }}
+                >
+                  {/* <FaHeart size={15}/> Like  */}
+                  {/* {isLiked ? (
+                                                       <FaHeart size={15} />
+                                                     ) : (
+                                                       <FaRegHeart size={15} />
+                                                     )}{" "} */}
+                  {likedProducts.some((p) => p._id === fetchProduct._id) ? (
+                    <FaHeart />
+                  ) : (
+                    <FaRegHeart />
+                  )}
+                  Like
+                </button>
+              </div>
             </div>
           </div>
         </div>

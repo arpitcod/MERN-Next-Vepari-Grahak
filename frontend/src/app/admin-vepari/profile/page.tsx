@@ -145,7 +145,7 @@ type VepariBannerProfileType = {
         </p>
 
         <div className="flex flex-col">
-          <label className="">Banner</label>
+          <label>Banner <strong className="">(use a picture that’s at least 1920 x 198 pixels and 4MB or less)</strong></label>
           {/* <input
             type="file"
             name="banner"
@@ -159,7 +159,7 @@ type VepariBannerProfileType = {
         {/* preview banner  */}
         {fetchVepariData?.banner && (
           <div
-            className={`flex justify-center items-center border rounded-md py-2 ${border_color}`}
+            className={`flex justify-center items-center border  ${border_color}`}
           >
             {typeof fetchVepariData.banner === "string" ? (
               // <img src={`http://localhost:5000/api/get-vepari-banner-profile/${vepari?._id}`} alt={vepari._id} className="w-[50%]" />
@@ -167,13 +167,13 @@ type VepariBannerProfileType = {
               <img
                 src={getVepariProfileBanner?.bannerUrl}
                 alt={getVepariProfileBanner?.bannerUrl}
-                className="w-[50%]"
+                className="w-[1920px] h-[198px] "
               />
             ) : fetchVepariData.banner instanceof File ? (
               <img
                 src={URL.createObjectURL(fetchVepariData.banner)}
                 alt="banner preview"
-                className="w-[50%]"
+                className="w-[1920px] h-[198px]"
               />
             ) : null}
           </div>
@@ -192,7 +192,7 @@ type VepariBannerProfileType = {
   } */}
 
         <div className="flex flex-col">
-          <label>Profile</label>
+          <label>Profile <strong className="">(use a picture that’s at least 100 x 100 pixels and 4MB or less)</strong></label>
           {/* <input
             type="file"
             name="profile"

@@ -20,9 +20,9 @@ const storage = multer.diskStorage({
     destination(req, file, callback) {
         let folder = "uploads/";
  if (file.fieldname === "banner" || file.fieldname === "profile") {
-      folder += "vepari/";
+      folder += "vepari";
     } else if (file.fieldname === "mainImage" || file.fieldname === "images") {
-      folder += "products/";
+      folder += "products";
     }
 
      // Ensure folder exists

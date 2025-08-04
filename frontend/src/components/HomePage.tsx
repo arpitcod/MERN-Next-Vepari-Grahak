@@ -1,11 +1,16 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import ProductDetail from "./ProductDetail";
 import { IoMdClose } from "react-icons/io";
-import { FaHeart, FaMinus, FaPlus } from "react-icons/fa";
-import { addToCart, increaseQuantity, decreaseQuantity } from "../../redux/CartSlice";
+import { FaHeart, FaMinus, FaPlus, FaRegHeart } from "react-icons/fa";
+import {
+  addToCart,
+  increaseQuantity,
+  decreaseQuantity,
+} from "../../redux/CartSlice";
 import { FaCartShopping } from "react-icons/fa6";
+import { likeProduct, unlikeProduct } from "../../redux/LikesSlice";
 
 type ProductsType = {
   _id?: string; // keep optional only if it's actually optional
@@ -53,11 +58,13 @@ const HomePage = () => {
   console.log("from home page data", getVepariData);
   const [showProductDetailBox, setShowProductDetailBox] = useState(false);
   const [productId, setProductId] = useState("");
-  
+
+
+  // add to cart 
   const cartItems = useSelector((state: RootState) => state?.cart?.cartItems);
 
   const getCartQuantity = (productId: string) => {
-    const item = cartItems.find(item => item._id === productId);
+    const item = cartItems.find((item:ProductsType) => item._id === productId);
     return item ? item.quantity : 0;
   };
 
@@ -75,17 +82,32 @@ const HomePage = () => {
   const handleDecrease = (productId: string) => {
     dispatch(decreaseQuantity(productId));
   };
+
+  // show product detail 
   const handleShowProductDetailBox = (id: string) => {
     setShowProductDetailBox(true);
     setProductId(id);
   };
+
+  const likedProducts = useSelector((state: RootState) => state.liked.likedProducts);
+
+  const handleLikedProduct = (product: ProductsType) => {
+      const isLiked = likedProducts.some((p) => p._id === product._id);
+      if (isLiked) {
+          dispatch(unlikeProduct(product))
+      } else {
+        dispatch(likeProduct(product))
+      }
+    
+    };
+
   return (
     <div>
       {isLoading ? (
         <h1 className="text-center text-2xl">Loading...</h1>
       ) : (
         <div className=" p-3 grid  justify-center sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5 flex-wrap ">
-          {getVepariData?.products?.map((product) => {
+          {getVepariData?.products?.map((product:ProductsType) => {
             const quantity = getCartQuantity(product._id ?? "");
             const maxQty = parseInt(product.quantity);
 
@@ -106,7 +128,7 @@ const HomePage = () => {
                   {getVepariData.shopname}
                 </p>
                 <p className="text-gray-800 font-medium capitalize">
-                  {product.name.length > 50
+                  {product?.name?.length > 50
                     ? product.name.substring(0, 50) + "..."
                     : product.name}
                 </p>
@@ -124,8 +146,7 @@ const HomePage = () => {
                         handleAddToCart(product);
                       }}
                     >
-                      Add <FaCartShopping />
-
+                      <FaCartShopping /> Add
                     </button>
                   ) : (
                     <div
@@ -133,16 +154,22 @@ const HomePage = () => {
                       className="flex items-center justify-between bg-indigo-500 rounded-md text-white px-2 py-1"
                     >
                       <button
-                        onClick={() => product._id && handleDecrease(product._id)}
+                        onClick={() =>
+                          product._id && handleDecrease(product._id)
+                        }
                         className="w-8 h-8 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition flex justify-center items-center"
                       >
                         <FaMinus size={12} />
                       </button>
 
-                      <span className="font-semibold text-lg px-3">{quantity}</span>
+                      <span className="font-semibold text-lg px-3">
+                        {quantity}
+                      </span>
 
                       <button
-                        onClick={() => product._id && handleIncrease(product._id, maxQty)}
+                        onClick={() =>
+                          product._id && handleIncrease(product._id, maxQty)
+                        }
                         disabled={quantity >= maxQty}
                         className="w-8 h-8 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition flex justify-center items-center disabled:opacity-50"
                       >
@@ -151,12 +178,31 @@ const HomePage = () => {
                     </div>
                   )}
 
-                  <button 
-                    className="border flex items-center gap-2 justify-center border-gray-300 bg-white text-gray-700 hover:bg-gray-50 transition-all duration-200 rounded-md text-md font-semibold py-2 px-4"
-                    onClick={(e) => e.stopPropagation()}
+                  <button
+                    className={`border flex items-center gap-2 justify-center ${
+                      likedProducts.some((p) => p._id === product._id)
+                        ? "bg-red-600 hover:bg-red-700 text-white"
+                        : "bg-white hover:bg-gray-100 border border-gray-400"
+                    } transition-all duration-200 rounded-md text-md font-semibold py-2 px-4`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleLikedProduct(product);
+                    }}
                   >
-                    Like <FaHeart />
-
+                    {/* <FaHeart size={15}/> Like  */}
+                    {/* {isLiked ? (
+                      <FaHeart size={15} />
+                    ) : (
+                      <FaRegHeart size={15} />
+                    )}{" "} */}
+                    {
+                    likedProducts.some((p) => p._id === product._id) ? (
+                      <FaHeart />
+                    ) : (
+                      <FaRegHeart />
+                    )
+                    }
+                    Like
                   </button>
                 </div>
               </div>

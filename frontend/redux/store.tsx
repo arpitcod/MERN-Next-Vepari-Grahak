@@ -6,14 +6,15 @@ import getVepariReducer from "./GetVepariSlice"
 import vepariProductsReducer from "./VepariProductSlice"
 import cartReducer from "./CartSlice"
 import { cartMiddleware } from "./cartMiddleware"
-
+import likedReducer from './LikesSlice'
 const store = configureStore({
     reducer:{
         user:userReducer,
         // getUser:getUserReducer,
         getVepari:getVepariReducer,
         vepariProducts:vepariProductsReducer,
-        cart:cartReducer
+        cart:cartReducer,
+        liked :likedReducer
         // vepari:vepariReducer 
     },
     middleware: (getDefaultMiddleware) =>

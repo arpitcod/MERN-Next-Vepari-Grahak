@@ -9,10 +9,48 @@ import {
 } from "../../redux/CartSlice";
 import { MdDelete } from "react-icons/md";
 
+type ProductsType = {
+  _id?: string; // keep optional only if it's actually optional
+  name: string;
+  brand: string;
+  price: string;
+  quantity: string;
+  category: string;
+  tags: string[];
+  description: string;
+  details: string;
+  mainImage?: string;
+  images?: string[];
+};
+
+type VepariType = {
+  _id?: string;
+  banner: File | string | null;
+  profile: File | string | null;
+  vepariname: string;
+  shopname: string;
+  description: string;
+  address: {
+    country: string;
+    state: string;
+    city: string;
+  };
+  category: string;
+  contact: string;
+  shopTime: {
+    startTime: string;
+    endTime: string;
+  };
+  isAdmin: boolean;
+  isActive: boolean;
+  products: ProductsType[];
+};
 const MyCart = () => {
   const dispatch = useDispatch();
-  const cartItems = useSelector((state: RootState) => state?.cart?.cartItems);
-
+  const cartItems = useSelector((state: RootState) => state?.cart?.cartItems );
+const getVepariData = useSelector(
+    (state: RootState) => state?.getVepari?.getVepari as VepariType | null
+  );
   const getTotalPrice = () => {
     return cartItems
       .reduce((total, item) => {
@@ -57,6 +95,7 @@ const MyCart = () => {
             key={item._id}
             className="bg-white border rounded-lg p-3 shadow-sm flex gap-4"
           >
+            
             <div className="flex justify-center items-center ">
                 <img
                   src={item.mainImage}
@@ -68,6 +107,9 @@ const MyCart = () => {
 
             <div className="flex-1 flex flex-col justify-between">
               <div>
+                <p className=" text-gray-500 text-sm capitalize">
+                  {getVepariData.shopname}
+                </p>
                 <h3 className="font-semibold text-md">{item.name.length > 60
                     ? item.name.substring(0, 60) + "..."
                     : item.name}</h3>
