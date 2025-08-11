@@ -14,7 +14,6 @@ import useGetUser from "@/getData/useGetUser";
 import { fetchVepariData } from "@/getData/useGetVepariData";
 import MyCart from "./MyCart";
 
-
 type ProductsType = {
   _id?: string; // keep optional only if it's actually optional
   name: string;
@@ -30,7 +29,7 @@ type ProductsType = {
 };
 
 type VepariType = {
-  _id?:string;
+  _id?: string;
   banner: File | string | null;
   profile: File | string | null;
   vepariname: string;
@@ -47,23 +46,22 @@ type VepariType = {
     startTime: string;
     endTime: string;
   };
-  isAdmin:boolean;
-  isActive:boolean;
-  products:ProductsType[]
+  isAdmin: boolean;
+  isActive: boolean;
+  products: ProductsType[];
 };
 const Navbar = () => {
   // Initialize data fetching hooks
   // useGetVepariData();
-  
 
   useGetUser();
-  
+
   const getVepariData = useSelector(
-      (state: RootState) => state?.getVepari?.getVepari as VepariType | null
-    );
+    (state: RootState) => state?.getVepari?.getVepari as VepariType | null
+  );
 
   useEffect(() => {
-    console.log('Vepari data heregetVepariDAta', getVepariData)
+    console.log("Vepari data heregetVepariDAta", getVepariData);
   }, [getVepariData]);
 
   const [showAccount, setShowAccount] = useState(false);
@@ -71,8 +69,8 @@ const Navbar = () => {
   const [showLogin, setShowLogin] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showCartBox, setShowCartBox] = useState(false);
-    // const [productId, setProductId] = useState("");
-  
+  // const [productId, setProductId] = useState("");
+
   const dispatch = useDispatch();
   const router = useRouter();
 
@@ -81,15 +79,12 @@ const Navbar = () => {
     phone: "",
   });
 
-  
-
   useEffect(() => {
     const token = localStorage.getItem("vg_token");
     if (token) {
       setUserToken(token);
-      
-    }else{
-      router.push("/")
+    } else {
+      router.push("/");
     }
   }, []);
 
@@ -124,7 +119,7 @@ const Navbar = () => {
       localStorage.setItem("vg_token", responseData?.token);
       setUserToken(responseData?.token);
       // useGetVepariData()
-      handleData()
+      handleData();
       router.push("/");
       setUser({
         username: "",
@@ -142,13 +137,13 @@ const Navbar = () => {
   const handleLogout = async () => {
     setIsLoading(true);
     const token = localStorage.getItem("vg_token");
-    
+
     try {
       const response = await fetch("http://localhost:5000/api/logout", {
         method: "GET",
         headers: {
           "content-type": "application/json",
-           Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
       const responseData = await response.json();
@@ -159,7 +154,7 @@ const Navbar = () => {
         setUserToken(null);
         dispatch(setUserData(null));
         dispatch(setGetVepari({ vepari: null }));
-        
+
         toast.success(responseData.message || "Logged out successfully");
         setShowAccount(false);
         router.push("/");
@@ -169,7 +164,7 @@ const Navbar = () => {
     } catch (error) {
       console.error("Logout error:", error);
       toast.error("Something went wrong during logout");
-      
+
       // Even if the server request fails, clear local state for better UX
       localStorage.removeItem("vg_token");
       setUserToken(null);
@@ -182,30 +177,27 @@ const Navbar = () => {
     }
   };
 
+  // get vepari data
+  const handleData = async () => {
+    const data = await fetchVepariData();
 
-  // get vepari data 
-    const handleData = async () =>{
-    const data =await fetchVepariData()
-    
     if (data) {
-       dispatch(setGetVepari(data));
-    }else{
-         dispatch(setGetVepari({ vepari: null }));
+      dispatch(setGetVepari(data));
+    } else {
+      dispatch(setGetVepari({ vepari: null }));
     }
-  }
-  useEffect(()=>{
-    handleData()
-  },[])
+  };
+  useEffect(() => {
+    handleData();
+  }, []);
   // Determine if user is admin
   // const isAdmin = getVepariData?.vepari?.isAdmin === true;
 
-  
-  
-
-  const border_bg_text_color = " hover:bg-indigo-500 hover:text-white border border-indigo-500 transition-all"
+  const border_bg_text_color =
+    " hover:bg-indigo-500 hover:text-white border border-indigo-500 transition-all";
   return (
-    <div className="px-2 flex flex-col sm:justify-between sm:flex-row items-center py-3 bg-white shadow-md gap-3 text-in">
-    {/* <div className="px-2 grid grid-cols-5 items-center py-2 bg-white shadow-md "> */}
+    <div className="px-2 flex flex-col sm:justify-between sm:flex-row items-center py-3 bg-white shadow-md gap-3 ">
+      {/* <div className="px-2 grid grid-cols-5 items-center py-2 bg-white shadow-md "> */}
       <div className="">
         <p className="text-2xl cursor-pointer text-indigo-900 ">
           Vepari Grahak
@@ -239,7 +231,6 @@ const Navbar = () => {
             onClick={() => setShowAccount(!showAccount)}
           >
             <MdAccountCircle /> My Account
-            
           </button>
           {showAccount && (
             <div className="border border-indigo-600 w-full absolute top-15 bg-white  text-gray-800 rounded-md p-1 shadow-xl">
@@ -267,7 +258,7 @@ const Navbar = () => {
               >
                 Faqs
               </Link>
-              
+
               {getVepariData?.isAdmin === true ? (
                 <Link
                   href="/admin-vepari/profile"
@@ -283,7 +274,7 @@ const Navbar = () => {
                   Create Shop
                 </Link>
               )}
-              
+
               <button
                 className="border block my-1 text-center py-2 bg-red-500 text-white rounded-md w-full cursor-pointer hover:bg-red-700"
                 onClick={handleLogout}
@@ -302,8 +293,7 @@ const Navbar = () => {
         >
           Login/Signup
         </button>
-      )
-      }
+      )}
 
       {/* Loading overlay */}
       {isLoading && (
@@ -352,6 +342,16 @@ const Navbar = () => {
                 }
               }}
             />
+            <p className="text-sm text-center my-1">
+              Super Admin{" "}
+              <Link
+                href="/super-admin/login"
+                className="text-indigo-600 hover:underline font-semibold"
+                onClick={()=> setShowLogin(false)}
+              >
+                Login here
+              </Link>
+            </p>
             <button
               className={`w-full bg-gray-800 text-white py-2 rounded-md cursor-pointer ${
                 user.phone.length < 10 || !user.username
@@ -376,29 +376,36 @@ const Navbar = () => {
           <FaShoppingCart /> Cart
         </button>
         {(() => {
-          const cartItems = useSelector((state: RootState) => state?.cart?.cartItems);
-          const totalItems = cartItems.reduce((total, item) => total + item.quantity, 0);
-          return totalItems > 0 && (
-            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold">
-              {totalItems > 99 ? '99+' : totalItems}
-            </span>
+          const cartItems = useSelector(
+            (state: RootState) => state?.cart?.cartItems
+          );
+          const totalItems = cartItems.reduce(
+            (total, item) => total + item.quantity,
+            0
+          );
+          return (
+            totalItems > 0 && (
+              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold">
+                {totalItems > 99 ? "99+" : totalItems}
+              </span>
+            )
           );
         })()}
       </div>
       {showCartBox && (
-         <div className="fixed inset-0 flex justify-center items-center z-50 bg-[rgba(0,0,0,0.7)]">
-           <div className="bg-gray-50  p-4 relative rounded-lg w-[100%] max-w-[500px] h-[600px] mx-3 overflow-auto">
-             <button
-               onClick={() => setShowCartBox(false)}
-               className="absolute top-2 right-2 text-xl cursor-pointer"
-             >
-               <IoMdClose className="text-3xl" />
-             </button>
-             
-             <MyCart />
-           </div>
-         </div>
-       )}
+        <div className="fixed inset-0 flex justify-center items-center z-50 bg-[rgba(0,0,0,0.7)]">
+          <div className="bg-gray-50  p-4 relative rounded-lg w-[100%] max-w-[500px] h-[600px] mx-3 overflow-auto">
+            <button
+              onClick={() => setShowCartBox(false)}
+              className="absolute top-2 right-2 text-xl cursor-pointer"
+            >
+              <IoMdClose className="text-3xl" />
+            </button>
+
+            <MyCart />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

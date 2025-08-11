@@ -1,7 +1,7 @@
 "use client";
 
 import useGetUser from "@/getData/useGetUser";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 // import Link from "next/link";
 // import { usePathname } from "next/navigation";
 import React, { useState } from "react";
@@ -14,9 +14,15 @@ import { toast } from "react-toastify";
 import { setUserData } from "../../../../redux/UserSlice";
 import { RootState } from "../../../../redux/store";
 
+// register type
+interface RegisterType {
+  _id?:string;
+  username: string;
+  phone: string;
+}
 const Page = () => {
   useGetUser();
-  const user = useSelector((state: RootState) => state?.user?.user);
+  const user = useSelector((state: RootState) => state?.user?.user as RegisterType | null);
   // const router = useRouter();
   const [showBox, setShowBox] = useState(false);
   const [isLoading, setIsLoading] = useState(false);

@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Navbar from "@/components/Navbar";
 import { ReduxProvider } from "../../redux/ReduxProvider";
 import { ToastContainer } from "react-toastify";
+import NavigationWrapper from "@/components/NavigationWrapper";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -21,7 +21,7 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({
-  children,
+  children
 }: Readonly<{
   children: React.ReactNode;
 }>) {
@@ -30,10 +30,10 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-      
         <ReduxProvider>
-
-          <Navbar />
+          <NavigationWrapper />
+          
+          
           <ToastContainer 
             position="top-center"
             autoClose={2000}

@@ -8,6 +8,7 @@ import shopRoutes from "./routes/createShop"
 import faqRoutes from "./routes/faqRouter"
 import path from "path";
 import productRoutes from './routes/productRouter'
+import superAdminRoutes from "./routes/super-admin/superAdminRouter"
 // Load environment variables
 dotenv.config();
 
@@ -37,6 +38,7 @@ app.use("/api", authRoutes);
 app.use("/api",shopRoutes)
 app.use("/api",faqRoutes)
 app.use("/api",productRoutes)
+app.use("/api/super-admin-auth",superAdminRoutes)
 app.get("/", (rq: Request, rs: Response) => {
     rs.send("Hare Krishna");
 });
