@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { setUserData } from "../../redux/UserSlice";
 import { setGetVepari } from "../../redux/GetVepariSlice";
+import { setSearchQuery } from "../../redux/SearchSlice";
 import { useRouter } from "next/navigation";
 import { RootState } from "../../redux/store";
 import useGetUser from "@/getData/useGetUser";
@@ -69,6 +70,8 @@ const Navbar = () => {
   const [showLogin, setShowLogin] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showCartBox, setShowCartBox] = useState(false);
+  
+  const searchQuery = useSelector((state: RootState) => state.search.query);
   // const [productId, setProductId] = useState("");
 
   const dispatch = useDispatch();
@@ -204,13 +207,15 @@ const Navbar = () => {
         </p>
       </div>
 
-      <div className="border border-indigo-600 rounded-md flex items-center w-full sm:w-fit px-2">
+      <div className="border border-indigo-600 rounded-md flex items-center w-full sm:w-fit px-2 focus-within:ring-1 focus-within:ring-indigo-600">
         <FaSearch className="mx-2 text-lg" />
         <input
           type="text"
           name="search"
           placeholder="search..."
-          className=" sm:w-[500px] py-3 rounded-md focus:outline-none "
+          className=" sm:w-[500px] py-3 rounded-md focus:outline-none"
+          value={searchQuery}
+          onChange={(e) => dispatch(setSearchQuery(e.target.value))}
         />
       </div>
 

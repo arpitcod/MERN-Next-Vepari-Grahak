@@ -4,15 +4,27 @@ import jwt from "jsonwebtoken"
 
 const superAdminMiddleware = async (rq:Request,rs:Response,next:NextFunction) =>{
     try {
-        const token = rq.cookies?.super_admin_token;
+        const token = rq.cookies?.super_admin_token
 
+        // if (!token) {
+        //     rs.status(401).json({
+        //         success:false,
+        //         message:"Access fail token not provided"
+        //     })
+        //     return
+        // }
         if (!token) {
-            rs.status(401).json({
-                success:false,
-                message:"Access fail token not provided"
-            })
-            return
-        }
+      // Postman (application/json) hoy to JSON aapo, browser hoy to redirect
+      if (rq.accepts("json")) {
+         rs.status(401).json({
+          success: false,
+          message: "Access fail, token not provided",
+        });
+        return
+      } else {
+        return rs.redirect("/");
+      }
+    }
 
         // verify token 
 

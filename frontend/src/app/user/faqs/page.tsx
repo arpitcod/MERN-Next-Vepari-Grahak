@@ -6,20 +6,20 @@ import { toast } from "react-toastify";
 const Faqs = () => {
   const [faq, setFaq] = useState<string>("");
 
-  const token = localStorage.getItem("vg_token");
-
+  
   const handleFaqSubmit = async () => {
     if (!faq.trim()) {
       toast.warning("Please write something in the FAQ.");
       return;
     }
-
+    
+    const token = localStorage.getItem("vg_token");
     try {
-      const response = await fetch("http://localhost:2929/api/user/faq", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_FAQ_POST}`, {
         method: "POST",
         headers: {
           "content-type": "application/json",
-          "Authorization": `${token}`,
+          "Authorization": `Bearer ${token}`,
         },
         body: JSON.stringify({ faq }),
       });

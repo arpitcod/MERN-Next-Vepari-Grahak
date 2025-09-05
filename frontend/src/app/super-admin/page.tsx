@@ -2,7 +2,13 @@
 
 import React from 'react'
 
-const page = () => {
+const Page = () => {
+  // const token = cookieStore.get("super_admin_token")
+
+  // useEffect(()=>{
+  //   console.log("token",token);
+    
+  // },[token])
   return (
     <div>
         <h1 className='text-2xl'>hare krishna</h1>
@@ -11,4 +17,4 @@ const page = () => {
   )
 }
 
-export default page
+export default Page

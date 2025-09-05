@@ -4,8 +4,19 @@ import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { FaSearch } from "react-icons/fa";
 import { toast } from "react-toastify";
+import { RootState } from "../../redux/store";
+import { useDispatch, useSelector } from "react-redux";
+import { setSearchQuery } from "../../redux/super-admin/SuperAdminSearchSlice";
 
 const SuperAdminNavbar = () => {
+  // Add inside component
+  const dispatch = useDispatch();
+  const searchQuery = useSelector(
+    (state: RootState) => state.superAdminSearch.query
+  );
+  const activeSection = useSelector(
+    (state: RootState) => state.superAdminSearch.activeSection
+  );
   // router
   const router = useRouter();
 
@@ -46,18 +57,20 @@ const SuperAdminNavbar = () => {
       <div className="">
         <h1 className="font-medium text-2xl">Super Admin</h1>
       </div>
-      <div className="border border-gray-400 bg-indigo-50 rounded-md  flex items-center w-full max-w-[700px] px-2">
+      <div className="border border-gray-400 bg-indigo-50 rounded-md  flex items-center w-full max-w-[700px] px-2 focus-within:ring-1 focus-within:ring-indigo-600">
         <FaSearch className="mx-2 text-lg" />
         <input
           type="text"
           name="search"
-          placeholder="search..."
+          placeholder={`Search ${activeSection}...`}
+          value={searchQuery}
+          onChange={(e) => dispatch(setSearchQuery(e.target.value))}
           className=" sm:w-[500px] py-3 rounded-md focus:outline-none  "
         />
       </div>
       <div className="flex gap-3 ">
         <Link
-          href="/"
+          href="/super-admin/dashboard"
           className="py-3 px-5 bg-indigo-500 hover:bg-indigo-600 transition-all text-white rounded-md text-lg cursor-pointer"
         >
           Home

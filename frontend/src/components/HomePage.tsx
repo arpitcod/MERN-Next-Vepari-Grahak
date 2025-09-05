@@ -58,6 +58,19 @@ const HomePage = () => {
   console.log("from home page data", getVepariData);
   const [showProductDetailBox, setShowProductDetailBox] = useState(false);
   const [productId, setProductId] = useState("");
+  
+  const searchQuery = useSelector((state: RootState) => state.search.query);
+  
+  const filteredProducts = getVepariData?.products?.filter((product: ProductsType) => {
+    if (!searchQuery) return true;
+    const query = searchQuery.toLowerCase();
+    return (
+      product.name.toLowerCase().includes(query) ||
+      product.tags.some(tag => tag.toLowerCase().includes(query)) ||
+      product.description.toLowerCase().includes(query) ||
+      getVepariData?.shopname?.toLowerCase().includes(query)
+    );
+  }) || [];
 
 
   // add to cart 
@@ -107,7 +120,12 @@ const HomePage = () => {
         <h1 className="text-center text-2xl">Loading...</h1>
       ) : (
         <div className=" p-3 grid  justify-center sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5 flex-wrap ">
-          {getVepariData?.products?.map((product:ProductsType) => {
+          {filteredProducts.length === 0 && searchQuery ? (
+            <div className="col-span-full text-center py-10">
+              <h2 className="text-2xl text-gray-500">Product not found</h2>
+            </div>
+          ) : (
+            filteredProducts?.map((product:ProductsType) => {
             const quantity = getCartQuantity(product._id ?? "");
             const maxQty = parseInt(product.quantity);
 
@@ -207,7 +225,8 @@ const HomePage = () => {
                 </div>
               </div>
             );
-          })}
+          })
+          )}
         </div>
       )}
 

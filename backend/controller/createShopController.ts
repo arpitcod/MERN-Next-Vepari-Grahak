@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+ import { Request, Response } from "express";
 import createShopModel from "../model/createShopModel";
 import authModel from "../model/authModel";
 

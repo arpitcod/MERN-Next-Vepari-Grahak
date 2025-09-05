@@ -38,7 +38,7 @@ const SuperAdminLogin = () => {
 
       const data = await response.json();
       if (response.ok) {
-        router.push("/super-admin")
+        router.push("/super-admin/dashboard")
         toast.success(data.message)
         console.log(data);
       } else {
@@ -53,7 +53,7 @@ const SuperAdminLogin = () => {
     }
   }
   return (
-    <div className="min-h-screen bg-indigo-100 flex items-center justify-center px-4">
+    <div className=" h-full bg-indigo-100 flex items-center justify-center px-4">
       <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-sm">
         <h2 className="text-2xl font-bold text-indigo-700 mb-4 text-center">Super Admin Login</h2>
 
