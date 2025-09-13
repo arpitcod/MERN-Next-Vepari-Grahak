@@ -9,15 +9,15 @@ const router = express.Router()
 router.post("/create-product",userMiddleware,adminMiddleware,upload.fields([{name:"mainImage",maxCount:1},{name:"images",maxCount:7}]),createProductController)
 
 // get all products http://localhost:5000/api/fetch-all-products use for  homepage 
-router.get("/fetch-all-products",userMiddleware,adminMiddleware,fetchAllProducts)
+router.get("/fetch-all-products",userMiddleware,fetchAllProducts)
 
 
 //get single vepari produtcs with vepari id http://localhost:5000/api/get-vepari-produtcs/685685203a7b0a6116731831
- router.get("/get-vepari-produtcs/:id",userMiddleware,adminMiddleware,getSingleVepariProducts)
+ router.get("/get-vepari-produtcs/:id",userMiddleware,getSingleVepariProducts)
 
 
  //get single product http://localhost:5000/api/get-single-product/685685203a7b0a6116731831
- router.get("/get-single-product/:id",userMiddleware,adminMiddleware,getSingleProductController)
+ router.get("/get-single-product/:id",userMiddleware,getSingleProductController)
 
 
  //update vepari product http://localhost:5000/api/update-vepari-product/685a71281ff1739b8e1ec511

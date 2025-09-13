@@ -1,20 +1,15 @@
 @import "tailwindcss";
 
-
-
+@custom-variant dark (&:where(.dark, .dark *));
 
 @import url('https://fonts.googleapis.com/css2?family=Gabarito:wght@400..900&display=swap');
 
 body {
-    /* background: var(--background);
-    color: var(--foreground); */
-    font-family: "Gabarito", sans-serif;
-  }
+  font-family: "Gabarito", sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
 
-  
-/* dark mode styles */
-
-/* HTML: <div class="loader"></div> */
+/* Loader styles */
 .loader {
   width: 50px;
   aspect-ratio: 1;
@@ -23,4 +18,32 @@ body {
   border-right-color: orange;
   animation: l2 1s infinite linear;
 }
-@keyframes l2 {to{transform: rotate(1turn)}}
+
+@keyframes l2 {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+/* Smooth transitions for dark mode */
+* {
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+
+/* Custom scrollbar for dark mode */
+.dark ::-webkit-scrollbar {
+  width: 8px;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: #374151;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #4B5563;
+  border-radius: 4px;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #6B7280;
+}

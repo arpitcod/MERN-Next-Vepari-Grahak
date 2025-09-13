@@ -18,7 +18,7 @@ router.delete("/delete-shop/:id",userMiddleware,adminMiddleware,deleteShopContro
 
 
 //get vepari http://localhost:2929/api/get-vepari/680cabb729b21acc6ff4a26b
-router.get("/get-vepari/:id",userMiddleware,adminMiddleware,getVepariController)
+router.get("/get-vepari/:id",userMiddleware,getVepariController)
 
 //update shop profile --> http://localhost:5000/api/shop-profile-update/680cabb729b21acc6ff4a26b
 // router.put("/shop-profile-update/:id", userMiddleware, adminMiddleware, updateVepariProfileController)

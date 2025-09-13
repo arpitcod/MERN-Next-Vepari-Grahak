@@ -73,10 +73,10 @@ const vepariClicks = useSelector((state: RootState) =>
       name:"Product Clicks",
       count:vepariClicks
     },
-    {
-      name:"Total Clicks",
-      count:vepariClicks
-    },
+    // {
+    //   name:"Total Clicks",
+    //   count:vepariClicks
+    // },
     {
       name:"Product Ordered",
       count:"?"

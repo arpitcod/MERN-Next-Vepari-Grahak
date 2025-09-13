@@ -16,7 +16,7 @@ import ProductDetail from "@/components/ProductDetail";
 import { likeProduct, unlikeProduct } from "../../../redux/LikesSlice";
 
 type ProductsType = {
-  _id?: string; // keep optional only if it's actually optional
+  _id?: string;
   name: string;
   brand: string;
   price: string;
@@ -51,12 +51,25 @@ type VepariType = {
   isActive: boolean;
   products: ProductsType[];
 };
+
+// Function to convert 24-hour format to 12-hour format with AM/PM
+const formatTimeTo12Hour = (time24: string) => {
+  if (!time24) return "";
+  
+  const [hours, minutes] = time24.split(':').map(Number);
+  const period = hours >= 12 ? 'PM' : 'AM';
+  const hours12 = hours % 12 || 12; // Convert 0 to 12 for 12 AM
+  
+  return `${hours12}:${minutes.toString().padStart(2, '0')} ${period}`;
+};
+
 const VepariStorePage = () => {
   const searchParams = useSearchParams();
   const vepariId = searchParams.get("id");
 
   const [vepariData, setVepariData] = useState<VepariType | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isShopOpen, setIsShopOpen] = useState(false);
 
   useEffect(() => {
     const fetchVepariData = async () => {
@@ -91,10 +104,32 @@ const VepariStorePage = () => {
     fetchVepariData();
   }, [vepariId]);
 
+  // Check if shop is currently open
+  useEffect(() => {
+    if (vepariData?.shopTime) {
+      const checkShopStatus = () => {
+        const now = new Date();
+        const currentTime = now.getHours() * 60 + now.getMinutes(); // Convert to minutes
+        
+        const [startHours, startMinutes] = vepariData.shopTime.startTime.split(':').map(Number);
+        const [endHours, endMinutes] = vepariData.shopTime.endTime.split(':').map(Number);
+        
+        const startTimeInMinutes = startHours * 60 + startMinutes;
+        const endTimeInMinutes = endHours * 60 + endMinutes;
+        
+        setIsShopOpen(currentTime >= startTimeInMinutes && currentTime <= endTimeInMinutes);
+      };
+      
+      checkShopStatus();
+      // Set up interval to check every minute
+      const interval = setInterval(checkShopStatus, 60000);
+      
+      return () => clearInterval(interval);
+    }
+  }, [vepariData]);
+
   const dispatch = useDispatch();
-  //   if (loading) return <p className="text-center text-2xl font-semibold mt-5">Loading...</p>;
   const [showProductDetailBox, setShowProductDetailBox] = useState(false);
-  //   product id
   const [productId, setProductId] = useState("");
 
   const cartItems = useSelector((state: RootState) => state?.cart?.cartItems);
@@ -104,7 +139,6 @@ const VepariStorePage = () => {
     return item ? item.quantity : 0;
   };
 
-  // handle add to cart
   const handleAddToCart = (product: ProductsType) => {
     dispatch(addToCart(product));
   };
@@ -120,13 +154,11 @@ const VepariStorePage = () => {
     dispatch(decreaseQuantity(productId));
   };
 
-  // show product detail
   const handleShowProductDetailBox = (id: string) => {
     setShowProductDetailBox(true);
     setProductId(id);
   };
 
-  // liked products
   const likedProducts = useSelector(
     (state: RootState) => state.liked.likedProducts
   );
@@ -139,6 +171,7 @@ const VepariStorePage = () => {
       dispatch(likeProduct(product));
     }
   };
+
   return (
     <div className="border p-3 bg-gray-50">
       <div className="border rounded-lg overflow-auto">
@@ -151,7 +184,6 @@ const VepariStorePage = () => {
         ) : null}
       </div>
       <div className=" my-2 flex gap-3 p-1 rounded-lg bg-white border">
-        {/* <div className="flex gap-2 shadow-md border border-gray-300  w-[30%] bg-white rounded-lg"> */}
         <div className="flex gap-2 w-[40%] ">
           <div className=" ">
             {typeof vepariData?.profile === "string" ? (
@@ -169,9 +201,14 @@ const VepariStorePage = () => {
             <p className="font-medium text-gray-600 text-lg">
               Total Products: {vepariData?.products.length}
             </p>
+            <div className="flex items-center gap-2 mt-1">
+              <span className={`inline-block w-3 h-3 rounded-full ${isShopOpen ? 'bg-green-500' : 'bg-red-500'}`}></span>
+              <span className="text-sm font-medium">
+                {isShopOpen ? 'Open' : 'Closed'} - {formatTimeTo12Hour(vepariData?.shopTime.startTime || '')} to {formatTimeTo12Hour(vepariData?.shopTime.endTime || '')}
+              </span>
+            </div>
           </div>
         </div>
-        {/* <div className="shadow-md flex items-center border border-gray-300 bg-white rounded-lg p-3 w-[70%]"> */}
         <div className=" flex items-center  p-3 w-[60%]">
           <div className="flex items-center gap-3 bg-white border border-gray-300 rounded-lg p-4 shadow-sm focus-within:ring-2 focus-within:ring-indigo-400 w-full">
             <FaSearch className="text-gray-500" />
@@ -225,6 +262,7 @@ const VepariStorePage = () => {
                         e.stopPropagation();
                         handleAddToCart(product);
                       }}
+                      disabled={!isShopOpen}
                     >
                       Add <FaCartShopping />
                     </button>
@@ -250,7 +288,7 @@ const VepariStorePage = () => {
                         onClick={() =>
                           product._id && handleIncrease(product._id, maxQty)
                         }
-                        disabled={quantity >= maxQty}
+                        disabled={quantity >= maxQty || !isShopOpen}
                         className="w-8 h-8 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition flex justify-center items-center disabled:opacity-50"
                       >
                         <FaPlus size={12} />
@@ -269,12 +307,6 @@ const VepariStorePage = () => {
                       handleLikedProduct(product);
                     }}
                   >
-                    {/* <FaHeart size={15}/> Like  */}
-                    {/* {isLiked ? (
-                                        <FaHeart size={15} />
-                                      ) : (
-                                        <FaRegHeart size={15} />
-                                      )}{" "} */}
                     {likedProducts.some((p) => p._id === product._id) ? (
                       <FaHeart />
                     ) : (
@@ -299,7 +331,6 @@ const VepariStorePage = () => {
               <IoMdClose className="text-3xl" />
             </button>
             <ProductDetail
-              //  getVepariData={getVepariData}
               productId={productId}
             />
           </div>
