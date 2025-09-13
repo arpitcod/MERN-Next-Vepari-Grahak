@@ -10,6 +10,7 @@ import { MdDelete } from "react-icons/md";
 // import { setGetVepari } from "../../../../redux/GetVepariSlice";
 import { toast } from "react-toastify";
 import { setGetVepari } from "../../../../redux/GetVepariSlice";
+import { removeProduct } from "../../../../redux/GetAllProductsSlice";
 
 type ProductsType = {
   _id?: string;           // keep optional only if it's actually optional
@@ -148,6 +149,7 @@ const MyProductsPage = () => {
 
       if (response.ok) {
          toast.success(data.message)
+         dispatch(removeProduct(id)) // Remove from all vepari products Redux state
          fetchProducts()
       }
     } catch (error) {

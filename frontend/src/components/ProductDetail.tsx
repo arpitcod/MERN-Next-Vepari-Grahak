@@ -12,6 +12,7 @@ import {
 import { usePathname, useRouter } from "next/navigation";
 import { IoStorefront } from "react-icons/io5";
 import { likeProduct, unlikeProduct } from "../../redux/LikesSlice";
+import { increaseClick } from "../../redux/ProfileViewedSlice";
 
 type ProductsType = {
   _id?: string; // keep optional only if it's actually optional
@@ -25,6 +26,7 @@ type ProductsType = {
   details: string;
   mainImage?: string;
   images?: string[];
+  vepariId:string
 };
 
 type VepariType = {
@@ -47,6 +49,7 @@ type VepariType = {
   };
   isAdmin: boolean;
   isActive: boolean;
+  vepariId:string
   products: ProductsType[];
 };
 
@@ -138,6 +141,8 @@ const ProductDetail = ({ productId }: { productId: string }) => {
         if (response.ok) {
           setFetchProduct(data.singleProduct);
           setSelectedImage(data.singleProduct.mainImage); // set default main image
+          console.log("from pproduuct detai fetch producct ",data.singleProduct);
+          
         } else {
           toast.error("Product not found");
         }
@@ -163,8 +168,13 @@ const ProductDetail = ({ productId }: { productId: string }) => {
   // handle vepari store
 
   const handleVepariStore = () => {
-    if (getVepariData && getVepariData._id) {
-      router.push(`/vepari-store?id=${getVepariData._id}`);
+    // if (getVepariData && getVepariData._id) {
+    if (fetchProduct.vepariId) {
+      dispatch(increaseClick(fetchProduct.vepariId));
+      // dispatch(increaseClick(getVepariData._id))
+      // dispatch(increaseClick(getVepariData._id))
+      router.push(`/vepari-store?id=${fetchProduct.vepariId}`);
+      // toast.success(fetchProduct.vepariId)
       // toast(`/vepari-store?id=${getVepariData._id}`);
     }
   };
@@ -218,7 +228,7 @@ const ProductDetail = ({ productId }: { productId: string }) => {
             </p>
             <div className="flex flex-wrap gap-2 mt-1">
               <strong>Tags:</strong>
-              {fetchProduct.tags.map((tag, index) => (
+              {fetchProduct.tags?.map((tag, index) => (
                 <span
                   key={index}
                   className="bg-indigo-100 text-indigo-700 text-sm font-medium px-3 py-1 rounded-full"
@@ -272,7 +282,7 @@ const ProductDetail = ({ productId }: { productId: string }) => {
               {pathname === "/vepari-store" ? null : (
                 <div>
                   <button
-                    className="w-full h-12  bg-amber-500 hover:bg-amber-600 text-white font-semibold rounded-lg flex items-center justify-center gap-2 transition duration-200 shadow-md"
+                    className="w-full h-12  bg-amber-500 hover:bg-amber-600 text-white font-semibold rounded-lg flex items-center justify-center gap-2 transition duration-200 shadow-md cursor-pointer"
                     onClick={handleVepariStore}
                   >
                     <IoStorefront size={20} />

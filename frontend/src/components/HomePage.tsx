@@ -11,9 +11,15 @@ import {
 } from "../../redux/CartSlice";
 import { FaCartShopping } from "react-icons/fa6";
 import { likeProduct, unlikeProduct } from "../../redux/LikesSlice";
+import { toast } from "react-toastify";
+import { increaseClick } from "../../redux/ProductClickSlice";
+import { fetchAllVepariProducts } from "@/getData/useGetAllProducts";
+import { setAllVepariProducts } from "../../redux/GetAllProductsSlice";
+import { useRouter } from "next/navigation";
+
 
 type ProductsType = {
-  _id?: string; // keep optional only if it's actually optional
+  _id?: string;
   name: string;
   brand: string;
   price: string;
@@ -24,6 +30,11 @@ type ProductsType = {
   details: string;
   mainImage?: string;
   images?: string[];
+  vepariId?: string | { // Add this field
+    _id: string;
+    shopname: string;
+    // other vepari properties if needed
+  };
 };
 
 type VepariType = {
@@ -51,24 +62,38 @@ type VepariType = {
 const HomePage = () => {
   const dispatch = useDispatch();
 
+  // router 
+  const router = useRouter();
+  // loading 
   const [isLoading] = useState(false);
+
+  // get vepari data 
   const getVepariData = useSelector(
     (state: RootState) => state?.getVepari?.getVepari as VepariType | null
   );
+
+  // getAllVepariProducts
+  const getAllVepariProducts = useSelector((state:RootState) => state?.allVepariProducts?.AllVepariProducts)
   console.log("from home page data", getVepariData);
   const [showProductDetailBox, setShowProductDetailBox] = useState(false);
   const [productId, setProductId] = useState("");
+
+  // product clicks 
+  // const [countProduct,setCountProduct] = useState(1)
   
+  // search query 
   const searchQuery = useSelector((state: RootState) => state.search.query);
-  
-  const filteredProducts = getVepariData?.products?.filter((product: ProductsType) => {
+
+  // search query 
+  // filtered products 
+  const filteredProducts = getAllVepariProducts?.filter((product: ProductsType) => {
     if (!searchQuery) return true;
     const query = searchQuery.toLowerCase();
     return (
       product.name.toLowerCase().includes(query) ||
       product.tags.some(tag => tag.toLowerCase().includes(query)) ||
       product.description.toLowerCase().includes(query) ||
-      getVepariData?.shopname?.toLowerCase().includes(query)
+      product?.vepariId?.shopname?.toLowerCase().includes(query)
     );
   }) || [];
 
@@ -97,10 +122,34 @@ const HomePage = () => {
   };
 
   // show product detail 
-  const handleShowProductDetailBox = (id: string) => {
-    setShowProductDetailBox(true);
-    setProductId(id);
-  };
+  //   const handleShowProductDetailBox = (id: string) => {
+  //   const product = filteredProducts.find((p: ProductsType) => p._id === id);
+  //   if (product && product.vepariId) {
+  //     dispatch(increaseClick({ vepariId: product.vepariId })); // Pass an object with vepariId
+  //   }
+  //   setShowProductDetailBox(true);
+  //   setProductId(id);
+  // };
+
+  // In your HomePage component, update the handleShowProductDetailBox function:
+const handleShowProductDetailBox = (id: string) => {
+  const product = filteredProducts.find((p: ProductsType) => p._id === id);
+  
+  // Check if product exists and has a vepariId property
+  if (product && product.vepariId) {
+    // Make sure vepariId is a string, not an object
+    const vepariId = typeof product.vepariId === 'string' 
+      ? product.vepariId 
+      : product.vepariId._id;
+    
+    if (vepariId) {
+      dispatch(increaseClick({ vepariId }));
+    }
+  }
+  
+  setShowProductDetailBox(true);
+  setProductId(id);
+};
 
   const likedProducts = useSelector((state: RootState) => state.liked.likedProducts);
 
@@ -113,6 +162,18 @@ const HomePage = () => {
       }
     
     };
+
+   
+
+    // token 
+
+useEffect(() => {
+    const token = localStorage.getItem("vg_token");
+    if (!token) {
+       router.push("/");
+    } 
+  }, []);
+
 
   return (
     <div>
@@ -134,7 +195,7 @@ const HomePage = () => {
                 className="flex flex-col gap-2  w-[250px] h-[370px] p-2 shadow-md border border-gray-400 rounded-lg bg-white cursor-pointer"
                 key={product._id}
                 onClick={() =>
-                  product._id && handleShowProductDetailBox(product._id)
+                  product?._id && handleShowProductDetailBox(product?._id)
                 }
               >
                 <img
@@ -143,9 +204,9 @@ const HomePage = () => {
                   className=" w-[250px] h-[150px] rounded-md"
                 />
                 <p className=" text-gray-500 text-sm capitalize">
-                  {getVepariData.shopname}
+                  {product?.vepariId?.shopname}
                 </p>
-                <p className="text-gray-800 font-medium capitalize">
+                <p className="text-gray-800 font-medium capitalize  h-14">
                   {product?.name?.length > 50
                     ? product.name.substring(0, 50) + "..."
                     : product.name}

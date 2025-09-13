@@ -6,15 +6,15 @@
 
 //   const GetVepariProducts = () => {
 //   useEffect(() => {
-//   const getVepariData = useSelector(
-//       (state: RootState) => state?.getVepari?.getVepari
-//     );
-//     const vepari = getVepariData?.vepari;
+// //   const getVepariData = useSelector(
+// //       (state: RootState) => state?.getVepari?.getVepari
+// //     );
+//     // const vepari = getVepariData?.vepari;
 //      const fetchProducts = async () => {
 //       try {
 //         const token = localStorage.getItem("vg_token");
 //         if (!token) return;
-//         const response = await fetch(`${process.env.NEXT_PUBLIC_SINGLE_VEPARI_PRODUTCS}/${vepari._id}`,
+//         const response = await fetch(`${process.env.NEXT_PUBLIC_SINGLE_VEPARI_PRODUTCS}`,
 //           {
 //             method: "GET",
 //             headers: {

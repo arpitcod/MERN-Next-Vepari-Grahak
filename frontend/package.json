@@ -7,20 +7,23 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "both" :"concurrently \"npm run server\" \"npm run client\""
+    "both": "concurrently \"npm run server\" \"npm run client\""
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.6.1",
+    "dompurify": "^3.2.6",
     "next": "15.2.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-icons": "^5.5.0",
+    "react-quill-new": "^3.6.0",
     "react-redux": "^9.2.0",
     "react-toastify": "^11.0.5"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
+    "@types/dompurify": "^3.2.0",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

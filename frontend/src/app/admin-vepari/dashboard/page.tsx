@@ -2,6 +2,9 @@
 import React from 'react'
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../../redux/store';
+import { selectTotalClicks, selectVepariClicks } from '../../../../redux/ProductClickSlice';
+import { profileClickCount } from '../../../../redux/ProfileViewedSlice';
+import { toast } from 'react-toastify';
 type ProductsType = {
   _id?: string;           // keep optional only if it's actually optional
   name: string;
@@ -42,6 +45,21 @@ const Page = () => {
    const vepari = useSelector(
     (state: RootState) => state?.getVepari?.getVepari as VepariType | null
   );
+// In your dashboard page component:
+// Get clicks for this specific vepari
+const vepariClicks = useSelector((state: RootState) => 
+  state.productClicks.clicksByVepari[vepari?._id || ""] || 0
+);
+
+
+
+
+  const myViews = useSelector((state: RootState) => profileClickCount(state, vepari?._id));
+  // toast.success(vepari?._id)
+
+
+  // const totalClicksLength = useSelector(selectTotalClicks);
+  // const profileViewedLength = useSelector(profileClickCount);
   const card = [
     {
       name:"Total Products",
@@ -49,15 +67,19 @@ const Page = () => {
     },
     {
       name:"Profile Viewed",
-      count:"10"
+      count:myViews
     },
     {
-      name:"Product Click",
-      count:"5"
+      name:"Product Clicks",
+      count:vepariClicks
+    },
+    {
+      name:"Total Clicks",
+      count:vepariClicks
     },
     {
       name:"Product Ordered",
-      count:"2"
+      count:"?"
     },
     
   ]
@@ -67,7 +89,7 @@ const Page = () => {
       {
         card.map((c) =>(
           <>
-            <div className='border w-[100%] max-w-[400px] h-[150px] flex justify-center items-center flex-col rounded-lg bg-indigo-600 text-white shadow-md'>
+            <div className='border border-gray-300 w-[100%] max-w-[400px] h-[150px] flex justify-center items-center flex-col rounded-lg bg-white text-gray-700 hover:bg-indigo-500 hover:text-white transition-all shadow-md'>
                 <p className='text-ld font-semibold'>{c.name}</p>
                 <p className='text-6xl font-bold '>{c.count}</p>
             </div>

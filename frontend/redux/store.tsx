@@ -10,8 +10,9 @@ import likedReducer from './LikesSlice'
 import searchReducer from './SearchSlice'
 import allDataReduer from "./super-admin/AllDataSlice"
 import superAdminSearchReducer from './super-admin/SuperAdminSearchSlice';
-
-
+import productClickReducer from "./ProductClickSlice";
+import profileViewedReducer from "./ProfileViewedSlice"
+import allVepariProductsReducer from "./GetAllProductsSlice"
 const store = configureStore({
     reducer:{
         user:userReducer,
@@ -23,6 +24,9 @@ const store = configureStore({
         search: searchReducer,
         allData: allDataReduer,
         superAdminSearch: superAdminSearchReducer,
+        productClicks: productClickReducer,
+        profileViewed: profileViewedReducer,
+        allVepariProducts:allVepariProductsReducer
         // vepari:vepariReducer 
     },
     middleware: (getDefaultMiddleware) =>

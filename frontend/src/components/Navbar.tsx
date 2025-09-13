@@ -14,6 +14,8 @@ import { RootState } from "../../redux/store";
 import useGetUser from "@/getData/useGetUser";
 import { fetchVepariData } from "@/getData/useGetVepariData";
 import MyCart from "./MyCart";
+import { fetchAllVepariProducts } from "@/getData/useGetAllProducts";
+import { setAllVepariProducts } from "../../redux/GetAllProductsSlice";
 
 type ProductsType = {
   _id?: string; // keep optional only if it's actually optional
@@ -123,6 +125,7 @@ const Navbar = () => {
       setUserToken(responseData?.token);
       // useGetVepariData()
       handleData();
+      handleFetchAllProdutsData();
       router.push("/");
       setUser({
         username: "",
@@ -193,6 +196,23 @@ const Navbar = () => {
   useEffect(() => {
     handleData();
   }, []);
+
+   // fetch all products 
+   const handleFetchAllProdutsData = async () => {
+     const data = await fetchAllVepariProducts()
+     if (data) {
+       dispatch(setAllVepariProducts(data))
+       console.log("get all vepari products",data);
+       
+     } else {
+       dispatch(setAllVepariProducts({products:null}))
+         console.error("error fetcch products")
+     }
+   }
+      useEffect(() =>{
+  
+        handleFetchAllProdutsData()
+      },[])
   // Determine if user is admin
   // const isAdmin = getVepariData?.vepari?.isAdmin === true;
 

@@ -132,8 +132,7 @@ export const createProductController = async (
 
 export const fetchAllProducts = async (rq: Request, rs: Response) => {
   try {
-    const fetchProducts = await productModel.find({});
-
+     const fetchProducts = await productModel.find({}).populate('vepariId', 'shopname');
     if (!fetchProducts || fetchProducts.length === 0) {
       rs.status(404).json({
         success: false,
